@@ -30,3 +30,8 @@ blob-report/
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Artefactos locales y generados
+apps/api/VERSION
+e2e/__visual__/
+.claude/settings.local.json
