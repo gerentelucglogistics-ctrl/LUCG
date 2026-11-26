@@ -28,9 +28,9 @@ jobs:
       - name: Pruebas
         env:
           APP_ENV: test
-          DATABASE_URL: postgresql+psycopg://lucg_api:lucg_api@127.0.0.1:54322/postgres
-          SUPABASE_URL: http://127.0.0.1:54321
-          SUPABASE_JWKS_URL: http://127.0.0.1:54321/auth/v1/.well-known/jwks.json
+          DATABASE_URL: postgresql+psycopg://lucg_api:lucg_api@127.0.0.1:55322/postgres
+          SUPABASE_URL: http://127.0.0.1:55321
+          SUPABASE_JWKS_URL: http://127.0.0.1:55321/auth/v1/.well-known/jwks.json
         run: uv run pytest -q --cov=app --cov-report=xml --cov-fail-under=70
       - name: OpenAPI
         run: uv run python -c "import json; from app.main import app; print(json.dumps(app.openapi()))" > ../../packages/api-client/openapi.json
