@@ -73,7 +73,21 @@ Compuerta: cierre de mes desde el sistema validado por el contador.
 **Requirements**: TBD (el hito H0 no tiene requisitos asignados en este ROADMAP)
 **Success Criteria** (what must be TRUE):
   1. TBD en /gsd:discuss-phase 0.1. Compuerta del hito H0: LUCG firma estados, catálogos y pantallas.
-**Plans**: TBD
+**Plans**: 12 plans (6 waves)
+
+Plans:
+- [ ] 00.1-01-PLAN.md — Guardas del agente (CLI v3), GSD normalizado (D-20), CODEOWNERS, runbook de paneles H-1..H-10, plantilla de verificacion.md
+- [ ] 00.1-02-PLAN.md — Python 3.12 + uv.lock, ruff/mypy, Supabase CLI v3 config.toml, 0001 sin contraseña, 0002 procrastinate, pruebas negativas RLS [BLOCKING db reset]
+- [ ] 00.1-03-PLAN.md — /health con SHA y consulta real (503), JWT sin HS256 con iss/aud, GET /yo con set_contexto
+- [ ] 00.1-04-PLAN.md — Diagnóstico protegido (ping/jobs/error), Sentry 3 restrictivo, lifespan procrastinate, Dockerfile + railway.*.json, cliente regenerado
+- [ ] 00.1-05-PLAN.md — ESLint 9 flat en web/driver, devDeps justificadas, __APP_VERSION__ de la consola, vercel.json SPA
+- [ ] 00.1-06-PLAN.md — PWA instalable (íconos, manifest, precache, /diagnostico), bypass de Vercel en Playwright, e2e sin red
+- [ ] 00.1-07-PLAN.md — Sitio importa tokens.css sin cambio visual; comparación visual sitio-prod vs sitio-preview
+- [ ] 00.1-08-PLAN.md — Login real en la consola, panel /yo, botones de error Sentry; e2e de login y worker
+- [ ] 00.1-09-PLAN.md — CI completo (api, web, e2e-preview, visual-sitio), migrate CLI v3 --remote, deploy dev/prod a Railway, e2e encadenado, salud diaria, scripts
+- [ ] 00.1-10-PLAN.md — [humano] Organizaciones de LUCG, transferencia del repo, Supabase, Sentry, Railway, Vercel, DNS y secretos
+- [ ] 00.1-11-PLAN.md — Suite completa, variables, protección de dev, cierre-fase a dev y evidencia en dev
+- [ ] 00.1-12-PLAN.md — [humano] Evidencia Sentry/PWA, protección de main, PR dev→main manual, prod y commit de la evidencia
 
 ### Phase 0.2: Dominio
 **Hito**: H0 Arranque y descubrimiento
