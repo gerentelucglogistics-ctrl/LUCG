@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 0.1
+current_phase: 00.1
 current_phase_name: Arranque técnico
-current_plan: —
+current_plan: 1
 status: executing
 stopped_at: Phase 0.1 context gathered
-last_updated: "2026-11-26T20:24:55.729Z"
+last_updated: "2026-11-26T22:57:14.115Z"
 last_activity: 2026-11-26
 progress:
   total_phases: 35
@@ -59,17 +59,19 @@ Ninguna todavía.
 See: .planning/PROJECT.md (updated 2026-11-26)
 
 **Core value:** Nadie en LUCG necesita el chat ni el sistema del aliado para saber dónde está un bulto, quién lo tiene y qué pasó.
-**Current focus:** Phase 0.1 Arranque técnico (hito H0)
+**Current focus:** Phase 00.1 — Arranque técnico
 
 ## Current Position
 
-**Current Phase:** 0.1
+Phase: 00.1 (Arranque técnico) — EXECUTING
+Plan: 1 of 12
+**Current Phase:** 00.1
 **Current Phase Name:** Arranque técnico
-**Current Plan:** —
+**Current Plan:** 1
 **Total Plans in Phase:** 12
-**Status:** Ready to execute
+**Status:** Executing Phase 00.1
 **Last Activity:** 2026-11-26
-**Last Activity Description:** Phase 0.1 planning complete — 12 plans ready
+**Last Activity Description:** Phase 00.1 execution started
 
 Progress: [░░░░░░░░░░] 0% (0 de 34 fases verificadas en dev)
 
