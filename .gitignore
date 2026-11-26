@@ -35,3 +35,6 @@ blob-report/
 apps/api/VERSION
 e2e/__visual__/
 .claude/settings.local.json
+
+# Worktrees temporales de agentes (GSD execute-phase)
+.claude/worktrees/
