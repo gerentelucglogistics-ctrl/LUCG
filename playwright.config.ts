@@ -8,6 +8,14 @@ export default defineConfig({
   timeout: 60_000,
   retries: process.env.CI ? 2 : 0,
   reporter: [["html", { open: "never" }], ["list"]],
+  expect: {
+    // Ruta compartida sin {projectName}: sitio-preview compara contra la línea base de sitio-prod.
+    toHaveScreenshot: {
+      pathTemplate: "{testDir}/__visual__/{testFilePath}/{arg}{ext}",
+      maxDiffPixelRatio: 0.01,
+      animations: "disabled",
+    },
+  },
   use: { trace: "retain-on-failure", screenshot: "only-on-failure", locale: "es-CO", timezoneId: "America/Bogota" },
   projects: [
     {
@@ -39,6 +47,26 @@ export default defineConfig({
       testMatch: /driver-offline/,
       use: { ...devices["Pixel 7"], baseURL: driver, permissions: ["camera", "geolocation"] },
       metadata: { bypassEnv: "VERCEL_BYPASS_DRIVER" },
+    },
+    {
+      // Línea base visual: sitio público en producción (solo lectura, sin secreto).
+      name: "sitio-prod",
+      testMatch: /sitio-visual/,
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: process.env.BASE_URL_SITE_PROD ?? "https://lucglogistics.com",
+        contextOptions: { reducedMotion: "reduce" },
+      },
+    },
+    {
+      name: "sitio-preview",
+      testMatch: /sitio-visual/,
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: process.env.BASE_URL_SITE_PREVIEW ?? "http://localhost:3000",
+        contextOptions: { reducedMotion: "reduce" },
+      },
+      metadata: { bypassEnv: "VERCEL_BYPASS_SITE" },
     },
   ],
 });
