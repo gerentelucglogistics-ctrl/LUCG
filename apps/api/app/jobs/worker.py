@@ -7,7 +7,8 @@ from app.core.config import get_settings
 app = procrastinate.App(
     connector=procrastinate.PsycopgConnector(
         conninfo=get_settings().database_url.replace("+psycopg", ""),
-        kwargs={"min_size": 1, "max_size": 3},
+        min_size=1,
+        max_size=3,
     )
 )
 
