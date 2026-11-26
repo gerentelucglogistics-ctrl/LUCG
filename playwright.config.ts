@@ -10,10 +10,35 @@ export default defineConfig({
   reporter: [["html", { open: "never" }], ["list"]],
   use: { trace: "retain-on-failure", screenshot: "only-on-failure", locale: "es-CO", timezoneId: "America/Bogota" },
   projects: [
-    { name: "local", use: { ...devices["Desktop Chrome"], baseURL: web }, metadata: { driver } },
-    { name: "local-driver", use: { ...devices["Pixel 7"], baseURL: driver, permissions: ["camera", "geolocation"], geolocation: { latitude: 7.8839, longitude: -76.6273 } } },
-    { name: "preview", use: { ...devices["Desktop Chrome"], baseURL: web } },
-    { name: "dev", use: { ...devices["Desktop Chrome"], baseURL: web } },
-    { name: "dev-driver", use: { ...devices["iPhone 14"], baseURL: driver, permissions: ["camera", "geolocation"] } },
+    {
+      name: "local",
+      testMatch: [/smoke/, /login/, /worker/],
+      use: { ...devices["Desktop Chrome"], baseURL: web },
+      metadata: { driver },
+    },
+    {
+      name: "local-driver",
+      testMatch: /driver-offline/,
+      use: { ...devices["Pixel 7"], baseURL: driver, permissions: ["camera", "geolocation"], geolocation: { latitude: 7.8839, longitude: -76.6273 } },
+    },
+    {
+      name: "preview",
+      testMatch: [/smoke/, /login/],
+      use: { ...devices["Desktop Chrome"], baseURL: web },
+      metadata: { bypassEnv: "VERCEL_BYPASS_WEB" },
+    },
+    {
+      name: "dev",
+      testMatch: [/smoke/, /login/, /worker/],
+      use: { ...devices["Desktop Chrome"], baseURL: web },
+      metadata: { bypassEnv: "VERCEL_BYPASS_WEB" },
+    },
+    {
+      // chromium: D-13 se prueba en chromium; la prueba real en iPhone es de la fase 0.3.
+      name: "dev-driver",
+      testMatch: /driver-offline/,
+      use: { ...devices["Pixel 7"], baseURL: driver, permissions: ["camera", "geolocation"] },
+      metadata: { bypassEnv: "VERCEL_BYPASS_DRIVER" },
+    },
   ],
 });

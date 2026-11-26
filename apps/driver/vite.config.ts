@@ -4,7 +4,7 @@ import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
-  define: { __APP_VERSION__: JSON.stringify(process.env.APP_VERSION ?? "dev") },
+  define: { __APP_VERSION__: JSON.stringify(process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.APP_VERSION ?? "dev") },
   plugins: [
     react(),
     tailwindcss(),
@@ -22,12 +22,15 @@ export default defineConfig({
         background_color: "#ffffff",
         theme_color: "#011c52",
         icons: [
-          { src: "icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any maskable" },
-          { src: "icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any maskable" },
+          { src: "icons/pwa-192x192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+          { src: "icons/pwa-512x512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+          { src: "icons/maskable-icon-512x512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
         ],
       },
       workbox: {
         navigateFallback: "/index.html",
+        navigateFallbackDenylist: [/^\/api\//],
+        globPatterns: ["**/*.{js,css,html,png,svg,ico,webmanifest}"],
         runtimeCaching: [
           { urlPattern: ({ url }) => url.pathname.startsWith("/api/"), handler: "NetworkFirst", options: { cacheName: "api", networkTimeoutSeconds: 8 } },
         ],
