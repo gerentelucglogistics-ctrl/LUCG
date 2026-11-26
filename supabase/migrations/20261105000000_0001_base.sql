@@ -6,10 +6,10 @@ create extension if not exists pg_trgm;
 
 create schema if not exists app;
 
--- Rol con el que se conecta la API (nunca el rol de servicio). La contraseña se cambia al enlazar producción.
+-- Rol con el que se conecta la API (nunca el rol de servicio). La contraseña la fija seed.sql en local/CI y el humano por SQL Editor en el alojado (runbook H-2).
 do $$ begin
   if not exists (select 1 from pg_roles where rolname = 'lucg_api') then
-    create role lucg_api login password 'lucg_api' nobypassrls;
+    create role lucg_api login nobypassrls;
   end if;
 end $$;
 grant usage on schema app to lucg_api;

@@ -16,5 +16,10 @@ def registrar_manejadores(app: FastAPI) -> None:
         return JSONResponse(
             status_code=e.status,
             media_type="application/problem+json",
-            content={"type": f"urn:lucg:error:{e.codigo}", "title": e.codigo, "status": e.status, "detail": e.detalle},
+            content={
+                "type": f"urn:lucg:error:{e.codigo}",
+                "title": e.codigo,
+                "status": e.status,
+                "detail": e.detalle,
+            },
         )

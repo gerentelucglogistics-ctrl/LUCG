@@ -25,7 +25,9 @@ def _jwks() -> PyJWKClient:
 
 def _decodificar(token: str) -> dict[str, Any]:
     key = _jwks().get_signing_key_from_jwt(token).key
-    return jwt.decode(token, key, algorithms=["ES256", "RS256", "HS256"], audience=get_settings().supabase_jwt_audience)
+    return jwt.decode(
+        token, key, algorithms=["ES256", "RS256", "HS256"], audience=get_settings().supabase_jwt_audience
+    )
 
 
 def principal_actual(authorization: Annotated[str | None, Header()] = None) -> Principal:
