@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./bypass";
 
 test("la consola carga y muestra la versión de la API", async ({ page }) => {
   await page.goto("/consola");
