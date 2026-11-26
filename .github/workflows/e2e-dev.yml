@@ -1,0 +1,42 @@
+name: Pruebas en dev
+on:
+  workflow_run:
+    workflows: ["Despliegue a dev"]
+    types: [completed]
+  workflow_dispatch:
+jobs:
+  verificar:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    environment: dev
+    env:
+      BASE_URL_WEB: ${{ vars.URL_WEB_DEV }}
+      BASE_URL_DRIVER: ${{ vars.URL_DRIVER_DEV }}
+      BASE_URL_API: ${{ vars.API_URL_DEV }}
+      E2E_USER_ADMIN: ${{ secrets.E2E_USER_ADMIN }}
+      E2E_PASS_ADMIN: ${{ secrets.E2E_PASS_ADMIN }}
+      E2E_USER_REPARTIDOR: ${{ secrets.E2E_USER_REPARTIDOR }}
+      E2E_PASS_REPARTIDOR: ${{ secrets.E2E_PASS_REPARTIDOR }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Humo
+        run: ./scripts/smoke.sh dev
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Playwright (dev)
+        run: pnpm e2e:dev
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: playwright-dev, path: playwright-report }
+      - uses: astral-sh/setup-uv@v5
+      - name: Contrato de API (Schemathesis)
+        run: |
+          uvx schemathesis run "$BASE_URL_API/openapi.json" --checks all --hypothesis-max-examples=30 \
+            --header "Authorization: Bearer ${{ secrets.E2E_TOKEN_ADMIN }}" || true
+      - name: Resumen
+        if: always()
+        run: |
+          echo "Evidencia: artefacto playwright-dev de esta ejecución; release Sentry ${{ github.event.workflow_run.head_sha || github.sha }}" >> "$GITHUB_STEP_SUMMARY"

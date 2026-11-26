@@ -1,0 +1,8 @@
+# Reemplazar por el usuario de GitHub del desarrollador principal
+* @desarrollador-principal
+supabase/migrations/ @desarrollador-principal
+apps/api/app/modules/envios/ @desarrollador-principal
+apps/site/ @desarrollador-principal
+packages/ui/src/tokens.css @desarrollador-principal
+.github/workflows/ @desarrollador-principal
+.claude/ @desarrollador-principal

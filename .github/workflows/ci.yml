@@ -1,0 +1,83 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [dev, main]
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: apps/api } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with: { python-version: "3.12" }
+      - run: uv sync --all-extras --dev
+      - run: uv run ruff check && uv run ruff format --check
+      - run: uv run mypy app
+      - uses: supabase/setup-cli@v1
+        with: { version: latest }
+      - name: Supabase local
+        run: supabase start
+        working-directory: ${{ github.workspace }}
+      - name: Migraciones y seed
+        run: supabase db reset
+        working-directory: ${{ github.workspace }}
+      - name: Pruebas
+        env:
+          APP_ENV: test
+          DATABASE_URL: postgresql+psycopg://lucg_api:lucg_api@127.0.0.1:54322/postgres
+          SUPABASE_URL: http://127.0.0.1:54321
+          SUPABASE_JWKS_URL: http://127.0.0.1:54321/auth/v1/.well-known/jwks.json
+        run: uv run pytest -q --cov=app --cov-report=xml --cov-fail-under=70
+      - name: OpenAPI
+        run: uv run python -c "import json; from app.main import app; print(json.dumps(app.openapi()))" > ../../packages/api-client/openapi.json
+      - uses: actions/upload-artifact@v4
+        with: { name: openapi, path: packages/api-client/openapi.json }
+
+  web:
+    runs-on: ubuntu-latest
+    needs: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with: { name: openapi, path: packages/api-client }
+      - run: pnpm gen-client
+      - name: Cliente sin cambios pendientes
+        run: git diff --exit-code packages/api-client/src/schema.ts
+      - run: pnpm lint && pnpm typecheck && pnpm test && pnpm build
+
+  e2e-preview:
+    # Corre contra la vista previa de Vercel del PR (URL publicada por la integración de Vercel)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    needs: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Esperar vista previa de Vercel
+        id: preview
+        uses: patrickedqvist/wait-for-vercel-preview@v1.3.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          max_timeout: 600
+      - name: Playwright (preview)
+        env:
+          BASE_URL_WEB: ${{ steps.preview.outputs.url }}
+          BASE_URL_API: ${{ vars.API_URL_DEV }}
+          E2E_USER_ADMIN: ${{ secrets.E2E_USER_ADMIN }}
+          E2E_PASS_ADMIN: ${{ secrets.E2E_PASS_ADMIN }}
+        run: pnpm e2e:preview
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: playwright-preview, path: playwright-report }

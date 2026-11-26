@@ -1,0 +1,64 @@
+name: Despliegue a dev
+on:
+  push:
+    branches: [dev]
+concurrency: { group: deploy-dev, cancel-in-progress: false }
+jobs:
+  migraciones:
+    uses: ./.github/workflows/migrate.yml
+    with: { entorno: dev }
+    secrets: inherit
+
+  api:
+    needs: migraciones
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+      # Opción A: Railway. Opción B: Fly (flyctl deploy --remote-only). Dejar la que LUCG contrate.
+      - name: Desplegar API y worker (Railway)
+        run: |
+          npm i -g @railway/cli
+          railway up --service api --detach
+          railway up --service worker --detach
+        env: { RAILWAY_TOKEN: "${{ secrets.RAILWAY_TOKEN }}" }
+      - name: Esperar versión desplegada
+        run: |
+          for i in $(seq 1 30); do
+            v=$(curl -sf "${{ vars.API_URL_DEV }}/api/v1/health" | python3 -c "import sys,json;print(json.load(sys.stdin).get('version',''))" || true)
+            [ "$v" = "${GITHUB_SHA::7}" ] && echo "API en $v" && exit 0
+            sleep 10
+          done
+          echo "La API no reportó la versión ${GITHUB_SHA::7}" && exit 1
+
+  apps:
+    needs: migraciones
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      # Vercel despliega solo la rama dev (integración con Git) en los dominios dev de cada proyecto
+      # (site, web, driver). Este paso solo espera a que respondan.
+      - name: Esperar despliegues de Vercel
+        run: |
+          for u in "${{ vars.URL_SITE_DEV }}" "${{ vars.URL_WEB_DEV }}" "${{ vars.URL_DRIVER_DEV }}"; do
+            [ -n "$u" ] || continue
+            for i in $(seq 1 30); do
+              code=$(curl -s -o /dev/null -w '%{http_code}' "$u" || true)
+              [ "$code" = "200" ] && echo "$u listo" && break
+              sleep 10
+            done
+          done
+
+  sentry:
+    needs: [api, apps]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+        with:
+          environment: dev
+          version: ${{ github.sha }}
+          projects: api web driver

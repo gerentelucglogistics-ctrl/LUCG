@@ -1,0 +1,36 @@
+{
+  "model": "opus",
+  "permissions": {
+    "defaultMode": "bypassPermissions",
+    "deny": [
+      "Bash(supabase db reset --linked*)",
+      "Bash(gh workflow run deploy-prod*)",
+      "Bash(railway up*--environment prod*)",
+      "Bash(vercel deploy --prod*)",
+      "Bash(vercel --prod*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push origin main*)",
+      "Bash(rm -rf /*)",
+      "Read(./.env)",
+      "Read(./.env.prod)",
+      "Read(./apps/api/.env)",
+      "Read(./apps/web/.env.local)",
+      "Read(./apps/driver/.env.local)",
+      "Read(./apps/site/.env.local)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/guardia-prod.sh\""
+          }
+        ]
+      }
+    ]
+  }
+}

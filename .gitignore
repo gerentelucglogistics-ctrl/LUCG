@@ -1,0 +1,32 @@
+# Node
+node_modules/
+dist/
+.turbo/
+*.tsbuildinfo
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+# Entornos
+.env
+.env.*
+!.env.example
+# Supabase
+supabase/.temp/
+supabase/.branches/
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+# GSD
+.planning/**/scratch/
+# SO y editores
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json

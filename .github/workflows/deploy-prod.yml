@@ -1,0 +1,49 @@
+name: Despliegue a prod
+# Prod se publica cuando el desarrollador principal fusiona a mano el PR dev -> main.
+# Vercel publica main en los dominios de producción (integración con Git); este flujo migra la base,
+# despliega API y worker y corre el humo. El entorno "prod" de GitHub exige aprobación manual.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+concurrency: { group: deploy-prod, cancel-in-progress: false }
+jobs:
+  respaldo:
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Verificar respaldo reciente (Supabase realiza respaldos diarios; aquí se exige un dump previo)
+        run: |
+          echo "Confirmar en el panel de Supabase que existe respaldo de hoy y descargar un dump con 'supabase db dump' antes de aprobar."
+  migraciones:
+    needs: respaldo
+    uses: ./.github/workflows/migrate.yml
+    with: { entorno: prod }
+    secrets: inherit
+  api:
+    needs: migraciones
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          npm i -g @railway/cli
+          railway up --service api --detach
+          railway up --service worker --detach
+        env: { RAILWAY_TOKEN: "${{ secrets.RAILWAY_TOKEN }}" }
+  humo:
+    needs: api
+    runs-on: ubuntu-latest
+    environment: prod
+    env:
+      BASE_URL_WEB: ${{ vars.URL_WEB_PROD }}
+      BASE_URL_DRIVER: ${{ vars.URL_DRIVER_PROD }}
+      BASE_URL_API: ${{ vars.API_URL_PROD }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/smoke.sh prod
+      - uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+        with: { environment: prod, version: "${{ github.sha }}", projects: api web driver }

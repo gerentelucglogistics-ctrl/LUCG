@@ -1,0 +1,27 @@
+name: Migraciones
+on:
+  workflow_call:
+    inputs:
+      entorno: { required: true, type: string }
+  workflow_dispatch:
+    inputs:
+      entorno:
+        description: dev | prod
+        required: true
+        default: dev
+jobs:
+  migrar:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.entorno }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with: { version: latest }
+      - run: supabase link --project-ref ${{ vars.SUPABASE_PROJECT_REF }}
+        env: { SUPABASE_ACCESS_TOKEN: "${{ secrets.SUPABASE_ACCESS_TOKEN }}" }
+      - run: supabase db push
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      - run: supabase migration list
+        env: { SUPABASE_ACCESS_TOKEN: "${{ secrets.SUPABASE_ACCESS_TOKEN }}" }
