@@ -26,3 +26,28 @@ Ninguna todavía.
 
 ## Próximo paso
 /gsd:new-project (si no se ha corrido) y luego /gsd:discuss-phase 0.1
+
+<!-- Campos agregados al adoptar GSD (2026-11-26). Las herramientas de GSD leen y escriben estos campos; lo de arriba
+     sigue siendo el resumen para personas. -->
+
+## Project Reference
+See: .planning/PROJECT.md (updated 2026-11-26)
+
+**Core value:** Nadie en LUCG necesita el chat ni el sistema del aliado para saber dónde está un bulto, quién lo tiene y qué pasó.
+**Current focus:** Phase 0.1 Arranque técnico (hito H0)
+
+## Current Position
+**Current Phase:** 0.1
+**Current Phase Name:** Arranque técnico
+**Current Plan:** —
+**Total Plans in Phase:** —
+**Status:** Ready to discuss
+**Last Activity:** 2026-11-26
+**Last Activity Description:** GSD adoptado sobre la planeación existente (sin regenerar PROJECT, REQUIREMENTS ni ROADMAP)
+
+Progress: [░░░░░░░░░░] 0% (0 de 34 fases verificadas en dev)
+
+## Session Continuity
+**Last session:** 2026-11-26
+**Stopped at:** Adopción de GSD terminada; sigue /gsd:discuss-phase 0.1
+**Resume File:** None
