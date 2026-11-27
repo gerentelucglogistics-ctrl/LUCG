@@ -53,12 +53,39 @@ Rellenar con enlaces y salidas reales. Una fila sin evidencia no cuenta como ver
 
 | Elemento | Evidencia |
 | --- | --- |
-| PR `dev → main` fusionado con merge commit | |
-| Despliegue a prod aprobado | |
-| Health de `api.lucglogistics.com` (version, db, rol_db) | |
-| Dominios de prod abiertos | |
-| Errores de prueba en Sentry (environment=prod) | |
-| Salud diaria ejecutada | |
+| Protección de `main` (D-17) | Script del desarrollador 2026-11-27: checks `api, web, visual-sitio`, PR obligatorio, `enforce_admins`, sin force push ni borrado (strict retirado después, ver desviaciones) |
+| Admin de prod (H-9) | `admin@lucglogistics.com` creado por la API de auth de prod (script del desarrollador), `app_metadata` `org_tipo=lucg`, `roles=[superadministrador]`; contraseña en el llavero (`lucg-prod-admin`) |
+| PR `dev → main` fusionado con merge commit | https://github.com/gerentelucglogistics-ctrl/LUCG/pull/3 → `d98a6f5` (padres `6aa645b` y `de6ae59`). Antes, sincronización `main → dev`: PR #4 (`761c75e`) |
+| Despliegue a prod aprobado | https://github.com/gerentelucglogistics-ctrl/LUCG/actions/runs/46078967305: aprobacion, migraciones, api success; `humo` falló solo en el sitio (308 a `www`, arreglado en PR #6 para el próximo despliegue), por eso el paso de release de Sentry de prod no corrió |
+| Health de `api.lucglogistics.com` (version, db, rol_db) | `{"status":"ok","db":true,"rol_db":"lucg_api","version":"d98a6f5","env":"prod"}` |
+| Dominios de prod abiertos | app 200, repartidor 200, lucglogistics.com 308 → www 200 (todo servido por Vercel; api por Railway) |
+| Errores de prueba en Sentry (environment=prod, release `d98a6f5`) | API https://lucg-logistics.sentry.io/issues/7871272417/ (evento 23:03 y 23:06), consola https://lucg-logistics.sentry.io/issues/7871422159/ (Chromium limpio, script del desarrollador; login con rol_db `lucg_api`, org_tipo `lucg`), PWA https://lucg-logistics.sentry.io/issues/7871420932/ |
+| Salud diaria ejecutada | https://github.com/gerentelucglogistics-ctrl/LUCG/actions/runs/46080368285: dev y prod success (D-08) |
+
+## Estado final D-01..D-20
+
+| Decisión | Estado | Evidencia |
+| --- | --- | --- |
+| D-01 | ✓ | Railway `lucg`: servicios api y worker en dev y prod (Cuentas y paneles) |
+| D-02 | ✓ | Supabase us-east-1 (dev y prod), Railway us-east4 |
+| D-03 | Parcial (enmendada) | Cuentas de LUCG en Supabase, Vercel, Railway y Sentry; la organización de GitHub no se pudo crear, el repo sigue en `gerentelucglogistics-ctrl` (STATE.md) |
+| D-04 | ✓ riesgo aceptado | Supabase Free sin respaldos en dev y prod |
+| D-05 | ✓ | Subdominios reales `dev.`, `app-dev.`, `repartidor-dev.`, `api-dev.` sirviendo en dev (e2e contra ellos) |
+| D-06 | ✓ | DNS en Vercel; `api-dev` y `api` por CNAME a Railway (`dig`) |
+| D-07 | ✓ | Prod creado y desplegado con el esqueleto (tabla Prod) |
+| D-08 | ✓ | Salud diaria run 46080368285, dev y prod verdes |
+| D-09 | ✓ | Sitio construye en el monorepo; `visual-sitio` pass en PR #3 contra prod |
+| D-10 | ✓ | Proyecto Vercel `lucg` con Root Directory `apps/site`; lucglogistics.com servido desde `main` |
+| D-11 | ✓ | `visual-sitio` pass (PR #2 y PR #3) |
+| D-12 | ✓ | Login real en dev (e2e) y prod (script), rol_db `lucg_api`, org_tipo `lucg` |
+| D-13 | ✓ | `driver-offline.spec.ts` ✓; DevTools › Manifest verificado por el desarrollador |
+| D-14 | ✓ | Health con SHA en dev (`d9ee67c` tras PR #6) y prod (`d98a6f5`); worker ping ✓ |
+| D-15 | ✓ | 3 errores en dev y 3 en prod con environment y release correctos |
+| D-16 | ✓ | Migraciones por pipeline en dev y prod |
+| D-17 | ✓ (enmendada) | CI requerido en dev (`api, web`) y main (`api, web, visual-sitio`), sin strict |
+| D-18 | ✓ | Planes gratuitos/Hobby |
+| D-19 | Parcial (enmendada) | Repo público, rama por defecto `dev`, CODEOWNERS; sin organización (ver D-03) |
+| D-20 | ✓ | GSD normalizado en `26da779` (plan 01) |
 
 ## Desviaciones
 
@@ -77,3 +104,8 @@ Rellenar con enlaces y salidas reales. Una fila sin evidencia no cuenta como ver
 - **D-17 enmendada, sin "up to date" (strict) en dev ni en main (2026-11-27, el desarrollador):** con strict en las dos ramas y fusiones con merge commit, `dev → main` y `main → dev` se bloqueaban entre sí (el PR #1 de Netlify en main dejó a dev atrás; cada merge commit en main repite el problema). Se conservan los checks requeridos, el PR obligatorio en main y enforce_admins. Sincronización `main → dev`: PR #4 con merge commit.
 - **Release de Sentry por pipeline:** `set-commits --auto` fallaba con checkout superficial (no encuentra el SHA de la release anterior). Se agregó `fetch-depth: 0` e `ignore_missing: true` en deploy-dev y deploy-prod.
 - **e2e-preview solo en PR hacia dev:** en los PR con main esperaba 10 minutos una vista previa de Vercel que no existe (main publica en Production).
+- **`cierre-fase.sh` tomaba un PR ya fusionado:** con la rama de fase reutilizada, `gh pr view <rama>` devolvía el PR #2 y no abría uno nuevo. Ahora solo considera PR abiertos (PR #5).
+- **Humo en prod:** el dominio raíz responde 308 a `www`; `smoke.sh` ahora sigue redirecciones (PR #6, entra a prod en el próximo `dev → main`).
+- **Aprobación de prod por job:** `deploy-prod.yml` tiene 4 jobs con `environment: prod` y GitHub pide aprobar cada uno (4 clics). Pendiente: una sola aprobación (backlog).
+- **Revisores de prod:** se agregó `gerentelucglogistics-ctrl` junto a `jaras97` (decisión del desarrollador); una misma cuenta puede fusionar y aprobar.
+- **Errores de la consola desde el navegador del desarrollador:** ni en dev ni en prod llegaron (Sentry no registró nada, ni descartado); la API y la PWA sí. Desde Chromium limpio llegan. Queda como mejora un `tunnel` de Sentry si se repite con usuarios reales.
