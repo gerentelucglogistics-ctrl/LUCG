@@ -7,7 +7,7 @@ default:
 dev:
 	supabase start
 	(cd apps/api && uv run uvicorn app.main:app --reload --port 8000) &
-	(cd apps/api && uv run procrastinate --app app.jobs.worker.app worker) &
+	(cd apps/api && PYTHONPATH=. uv run procrastinate --app app.jobs.worker.app worker) &
 	pnpm -r --parallel dev
 
 db-start:

@@ -83,7 +83,7 @@ Plans:
 - [x] 00.1-05-PLAN.md — ESLint 9 flat en web/driver, devDeps justificadas, __APP_VERSION__ de la consola, vercel.json SPA
 - [x] 00.1-06-PLAN.md — PWA instalable (íconos, manifest, precache, /diagnostico), bypass de Vercel en Playwright, e2e sin red
 - [x] 00.1-07-PLAN.md — Sitio importa tokens.css sin cambio visual; comparación visual sitio-prod vs sitio-preview
-- [ ] 00.1-08-PLAN.md — Login real en la consola, panel /yo, botones de error Sentry; e2e de login y worker
+- [x] 00.1-08-PLAN.md — Login real en la consola, panel /yo, botones de error Sentry; e2e de login y worker
 - [x] 00.1-09-PLAN.md — CI completo (api, web, e2e-preview, visual-sitio), migrate CLI v3 --remote, deploy dev/prod a Railway, e2e encadenado, salud diaria, scripts
 - [ ] 00.1-10-PLAN.md — [humano] Organizaciones de LUCG, transferencia del repo, Supabase, Sentry, Railway, Vercel, DNS y secretos
 - [ ] 00.1-11-PLAN.md — Suite completa, variables, protección de dev, cierre-fase a dev y evidencia en dev

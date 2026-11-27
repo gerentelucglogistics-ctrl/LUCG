@@ -8,7 +8,7 @@ COPY app ./app
 COPY VERSION* ./
 RUN uv sync --frozen --no-dev
 ARG APP_VERSION=dev
-ENV APP_VERSION=${APP_VERSION} PATH="/app/.venv/bin:$PATH"
+ENV APP_VERSION=${APP_VERSION} PATH="/app/.venv/bin:$PATH" PYTHONPATH=/app
 EXPOSE 8000
 # API por defecto; el worker usa: procrastinate --app app.jobs.worker.app worker
 CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips="*"
