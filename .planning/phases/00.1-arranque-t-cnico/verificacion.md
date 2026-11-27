@@ -11,9 +11,17 @@ Rellenar con enlaces y salidas reales. Una fila sin evidencia no cuenta como ver
 | D-01 | Railway a nombre de LUCG, proyecto `lucg` con entornos dev y prod | 2026-11-27, API GraphQL (agente, dev): proyecto `lucg` `5f527e12-fc1f-41ef-92e5-0d4258de7241`, entorno `dev`, servicios `api` y `worker` sin repo, región `us-east4-eqdc4a` (Virginia), variables del contrato + `PORT=8000` en api, dominio `api-dev.lucglogistics.com` → CNAME `ilv9jyp0.up.railway.app`. Entorno `prod`: script del desarrollador. |
 | D-02 | Supabase `lucg-dev` y `lucg-prod` en us-east-1 | 2026-11-27, API de gestión: `lucg-dev mrmmnotufnenuanapdng us-east-1 ACTIVE_HEALTHY`, `lucg-prod hzzbrylozdqpvoxrktpp us-east-1 ACTIVE_HEALTHY`. Pooler de ambos: `aws-2-us-east-1.pooler.supabase.com`. JWKS solo `EC` en los dos; auth health 200; signup → `signup_disabled` (dev). Los dos se recrearon porque se habían creado en us-east-2 y us-west-2 (dev lo recreó el agente; prod, el desarrollador con un script). |
 | D-03 | Organización de GitHub de LUCG con el repositorio transferido | Pendiente: GitHub no permitió crear la organización (D-19 enmendada 2026-11-27). Repo en `gerentelucglogistics-ctrl/LUCG`; administración por token fine-grained de esa cuenta. |
-| D-04 | Plan Free de Supabase y sin respaldos aceptado | |
-| D-18 | Planes gratuitos de Supabase, Sentry, Railway y Vercel | Sentry 2026-11-27: org `lucg-logistics` (región US, `us.sentry.io`), proyectos `api` (python-fastapi), `web` y `driver` (javascript-react); Data Scrubber, Default Scrubbers y Prevent Storing of IP Addresses activos (API). Evento de ingesta de prueba a `api`: HTTP 200. |
-| D-19 | Repositorio público, CODEOWNERS, rama por defecto `dev` | `gh repo view`: `PUBLIC dev` (2026-11-27). CODEOWNERS: plan 11. |
+| D-04 | Plan Free de Supabase y sin respaldos aceptado | `lucg-dev` y `lucg-prod` en la org Free `ihbhuvaiorrhmumgmysg` (gerentelucglogistics-ctrl's Org); sin respaldos, aceptado por D-04. |
+| D-18 | Planes gratuitos de Supabase, Sentry, Railway y Vercel | Supabase Free; Railway Hobby (USD 5/mes, D-18); Vercel team `lucg` plan `hobby` (A14: riesgo de uso comercial en Hobby aceptado). Sentry 2026-11-27: org `lucg-logistics` (región US, `us.sentry.io`), proyectos `api` (python-fastapi), `web` y `driver` (javascript-react); Data Scrubber, Default Scrubbers y Prevent Storing of IP Addresses activos (API). Evento de ingesta de prueba a `api`: HTTP 200. |
+| D-19 | Repositorio público, CODEOWNERS, rama por defecto `dev` | `gh repo view`: `PUBLIC dev` (2026-11-27). `.github/CODEOWNERS` asigna `@jaras97` (raíz, migraciones, envios, sitio, tokens.css, workflows, .claude). |
+
+## Suite local antes del cierre (plan 11, 2026-11-27)
+
+- `supabase db reset` OK; API: ruff, ruff format, mypy (18 archivos) sin errores; pytest 28 passed, cobertura 95,10 % (mínimo 70 %).
+- Web: `pnpm install --frozen-lockfile`, lint, typecheck, test y build en verde (site, web, driver).
+- Cliente: OpenAPI regenerado con el env de `ci.yml`; `git diff --exit-code packages/api-client/src/schema.ts` sin cambios.
+- Protección de `dev` aplicada: checks `["api","web"]`, strict, `enforce_admins` true, sin force push ni borrado.
+- Contrato GitHub: 13 variables de repo, 3 de `dev`; secretos repo 7, `dev` 4, `prod` 3 (solo nombres).
 
 ## Pipeline dev
 
