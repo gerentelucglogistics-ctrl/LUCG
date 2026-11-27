@@ -28,7 +28,8 @@ echo "${salud}" | grep -q '"db": *true' || { echo "API sin conexión a la base";
 
 verificar() { # nombre url variable-de-bypass
   local code
-  code=$(curl_vercel "$3" -s -o /dev/null -w '%{http_code}' "$2")
+  # -L: el dominio raíz redirige a www (308); cuenta el código final.
+  code=$(curl_vercel "$3" -sL -o /dev/null -w '%{http_code}' "$2")
   echo "$1 ${2} -> ${code}"
   [ "$code" = "200" ] || { echo "$1 no responde 200"; exit 1; }
 }
