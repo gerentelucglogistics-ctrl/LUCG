@@ -21,6 +21,11 @@ PR=$(gh pr view "$RAMA" --json number -q .number)
 
 echo "== 3/5 Esperando checks requeridos del PR #${PR}"
 # Solo los requeridos por la protección de dev (api, web): e2e-preview y visual-sitio no bloquean.
+# Recién hecho el push, GitHub tarda unos segundos en registrar los checks: esperar a que aparezcan.
+for _ in $(seq 1 30); do
+  [ "$(gh pr checks "$PR" --required --json name -q length 2>/dev/null || echo 0)" -gt 0 ] && break
+  sleep 5
+done
 gh pr checks "$PR" --required --watch --fail-fast
 
 echo "== 4/5 Fusión en ${BASE}"

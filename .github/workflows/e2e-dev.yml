@@ -35,7 +35,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always()
         with: { name: playwright-dev, path: playwright-report, if-no-files-found: ignore }
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.4.0
       - name: Contrato de API (Schemathesis)
         run: |
           uvx schemathesis run "$BASE_URL_API/openapi.json" --checks all --hypothesis-max-examples=30 \
