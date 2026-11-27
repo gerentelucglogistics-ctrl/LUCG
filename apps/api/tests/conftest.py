@@ -1,7 +1,7 @@
 import os
 import time
 import uuid
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from types import SimpleNamespace
 from typing import Any
 
@@ -17,10 +17,11 @@ os.environ.setdefault("SUPABASE_JWKS_URL", "http://127.0.0.1:55321/auth/v1/.well
 
 
 @pytest.fixture
-def client() -> TestClient:
+def client() -> Iterator[TestClient]:
     from app.main import app
 
-    return TestClient(app)
+    with TestClient(app) as c:  # with: corre el lifespan (pool de procrastinate)
+        yield c
 
 
 @pytest.fixture
