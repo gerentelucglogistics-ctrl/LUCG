@@ -6,19 +6,29 @@ Orden de ejecución: H-1 a H-10.
 > Avisos:
 > - El agente no crea cuentas ni toca prod (regla 9). Prod y `main` los maneja el desarrollador principal a mano.
 > - Nunca pegues secretos en el chat ni en el repositorio. Se cargan en los paneles o con `gh secret set NOMBRE --env dev`.
+> - Mientras el repositorio siga en la cuenta personal `gerentelucglogistics-ctrl` (ver H-1), los secretos, variables, environments y la protección de ramas (H-1, H-7, H-8) solo los puede crear esa cuenta: hazlo con su sesión en el navegador o con `gh auth login` como esa cuenta.
 > - Los valores no secretos que se piden al final de cada paso (refs, hosts, slugs, IDs) sí se devuelven al agente.
 > - Marcadores usados abajo: `<ref>` (referencia del proyecto Supabase), `<generada>` (contraseña que tú generas), `<x>` (valor que muestra el panel).
 
-## H-1 GitHub (D-03, D-19)
+## H-1 GitHub (D-03, D-19 enmendada 2026-11-27)
 
-- [ ] Crear una organización Free de LUCG con un correo de LUCG.
-- [ ] Invitar a `jaras97` como Owner.
-- [ ] Transferir `gerentelucglogistics-ctrl/LUCG` a la organización (Settings › General › Danger Zone › Transfer ownership). El repositorio se mantiene **Public** (D-19).
-- [ ] Settings › Branches: rama por defecto = `dev`. Pitfall 1: los workflows con `schedule` y `workflow_dispatch` solo se leen desde la rama por defecto.
-- [ ] Settings › Environments: crear `dev` (Deployment branches: Selected branches → `dev`) y `prod` (Required reviewers = el desarrollador; Deployment branches: Selected → `main`).
+> GitHub no permitió crear la organización (ni desde la cuenta de LUCG ni desde `jaras97`). Por ahora el repositorio
+> sigue en la cuenta `gerentelucglogistics-ctrl` (de LUCG) y público. `jaras97` tiene permiso de escritura, no de
+> administración, así que **los ajustes de administración se hacen con la sesión de `gerentelucglogistics-ctrl`**.
+> La organización queda como pendiente; cuando exista, se transfiere el repositorio y se repiten estos ajustes.
+
+Con la sesión de `gerentelucglogistics-ctrl`, en `github.com/gerentelucglogistics-ctrl/LUCG`:
+
+- [ ] Settings › General › Default branch: rama por defecto = `dev`. Pitfall 1: los workflows con `schedule` y `workflow_dispatch` solo se leen desde la rama por defecto.
+- [ ] Settings › Environments: crear `dev` (Deployment branches: Selected branches → `dev`) y `prod` (Required reviewers = `gerentelucglogistics-ctrl` y/o `jaras97`; Deployment branches: Selected → `main`).
 - [ ] Settings › Actions › General: "Require approval for all outside collaborators" para workflows de forks y Workflow permissions = Read repository contents.
+- [ ] Confirmar que el repositorio sigue **Public** (D-19) y que `jaras97` aparece en Settings › Collaborators con rol Write.
 
-Evidencia esperada: URL del repositorio dentro de la organización y captura de Environments con las reglas.
+Pendiente (cuando GitHub lo permita): crear la organización Free de LUCG, invitar a `jaras97` como Owner y transferir
+el repositorio (Settings › General › Danger Zone › Transfer ownership).
+
+Evidencia esperada: salida de `gh repo view gerentelucglogistics-ctrl/LUCG --json visibility,defaultBranchRef` y de
+`gh api repos/gerentelucglogistics-ctrl/LUCG/environments --jq '[.environments[].name]'`.
 
 ## H-2 Supabase (D-02, D-04, D-18)
 

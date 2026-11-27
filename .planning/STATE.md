@@ -36,6 +36,7 @@ Hito: H0 Arranque y descubrimiento · Fase en curso: 0.1 Arranque técnico · Es
 
 ## Bloqueos y pendientes externos
 
+- GitHub: no se pudo crear la organización de LUCG (2026-11-27). El repo sigue en `gerentelucglogistics-ctrl/LUCG`; esa cuenta hace los ajustes de admin. Transferir cuando exista la organización (D-19 enmendada).
 - IMILE: ¿exportaciones de salida a ruta, fallidos y devoluciones? ¿correo automático o API?
 - Contrato IMILE: fórmula de multas y valor por perdido.
 - Lista de 18 repartidores con nombre exacto en IMILE y tarifa.
