@@ -116,6 +116,19 @@ export interface components {
             /** Job Id */
             job_id: number;
         };
+        /** Salud */
+        Salud: {
+            /** Status */
+            status: string;
+            /** Db */
+            db: boolean;
+            /** Rol Db */
+            rol_db: string | null;
+            /** Version */
+            version: string;
+            /** Env */
+            env: string;
+        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -261,7 +274,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["Salud"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Salud"];
                 };
             };
         };
