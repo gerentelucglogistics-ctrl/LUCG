@@ -24,9 +24,13 @@ db-reset:
 migration nombre:
 	supabase migration new {{nombre}}
 
-# Aplica migraciones al proyecto enlazado (dev)
+# Aplica migraciones pendientes solo a la base local. Las bases alojadas solo las migra migrate.yml (D-16)
 migrate:
-	supabase db push
+	supabase migration up
+
+# Crea el usuario de e2e en la base local (requiere SUPABASE_SECRET_KEY, E2E_USER_ADMIN, E2E_PASS_ADMIN)
+sembrar-local:
+	./scripts/sembrar-usuario-e2e.sh local
 
 # Pruebas unitarias e integración (API) y unitarias (apps)
 test:
