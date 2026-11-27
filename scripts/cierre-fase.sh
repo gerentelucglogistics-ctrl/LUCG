@@ -13,10 +13,13 @@ echo "== 1/5 Push de ${RAMA}"
 git push -u origin "$RAMA"
 
 echo "== 2/5 PR hacia ${BASE}"
-if ! gh pr view "$RAMA" >/dev/null 2>&1; then
+# Solo PR abiertos: la rama de fase se reutiliza y `gh pr view <rama>` devolvería un PR ya fusionado.
+pr_abierto() { gh pr list --head "$RAMA" --base "$BASE" --state open --json number -q '.[0].number // empty'; }
+if [ -z "$(pr_abierto)" ]; then
   gh pr create --base "$BASE" --head "$RAMA" --title "$TITULO" --body-file .github/PULL_REQUEST_TEMPLATE.md
 fi
-PR=$(gh pr view "$RAMA" --json number -q .number)
+PR=$(pr_abierto)
+[ -n "$PR" ] || { echo "No hay PR abierto de ${RAMA} hacia ${BASE}"; exit 1; }
 [ "$(gh pr view "$PR" --json baseRefName -q .baseRefName)" = "$BASE" ] || { echo "El PR #${PR} no apunta a ${BASE}; no se fusiona"; exit 1; }
 
 echo "== 3/5 Esperando checks requeridos del PR #${PR}"

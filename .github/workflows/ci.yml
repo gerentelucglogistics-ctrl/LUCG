@@ -65,7 +65,8 @@ jobs:
   e2e-preview:
     # No es check requerido (B-1): no bloquea mientras api-dev no responda (primer despliegue).
     # Los forks no reciben secretos: el job solo corre si el head es de este repo.
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    # Solo PR hacia dev: en los PR con main no hay vista previa de Vercel (main publica en Production).
+    if: github.event_name == 'pull_request' && github.base_ref == 'dev' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     continue-on-error: true
     needs: web

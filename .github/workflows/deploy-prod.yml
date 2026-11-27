@@ -64,10 +64,12 @@ jobs:
       BASE_URL_API: ${{ vars.API_URL_PROD }}
       BASE_URL_SITE: ${{ vars.URL_SITE_PROD }}
     steps:
+      # Historia completa: set-commits busca el SHA de la release anterior.
       - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
       - run: ./scripts/smoke.sh prod
       - uses: getsentry/action-release@v3
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ vars.SENTRY_ORG }}
-        with: { environment: prod, release: "${{ github.sha }}", projects: api web driver }
+        with: { environment: prod, release: "${{ github.sha }}", projects: api web driver, ignore_missing: true }
