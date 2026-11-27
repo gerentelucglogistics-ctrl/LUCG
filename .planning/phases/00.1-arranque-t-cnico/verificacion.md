@@ -27,27 +27,27 @@ Rellenar con enlaces y salidas reales. Una fila sin evidencia no cuenta como ver
 
 | Elemento | Evidencia |
 | --- | --- |
-| PR de la fase hacia `dev` | |
-| Run de CI | |
-| Run de despliegue a dev | |
-| `supabase migration list --remote` (dev) | |
-| Health de `api-dev` | |
-| e2e contra dev | |
-| Salud diaria | |
+| PR de la fase hacia `dev` | https://github.com/gerentelucglogistics-ctrl/LUCG/pull/2, fusionado (squash) 2026-11-27T19:25:24Z, commit `d20ad04` |
+| Run de CI | https://github.com/gerentelucglogistics-ctrl/LUCG/actions/runs/46056284292: `api`, `web`, `visual-sitio`, `e2e-preview` pass; Vercel lucg, lucg-web, lucg-driver pass. Antes: 3 runs rojos corregidos en la rama (setup-uv@v10 inexistente, env del job api, Node 20 vs pnpm 11). |
+| Run de despliegue a dev | https://github.com/gerentelucglogistics-ctrl/LUCG/actions/runs/46056594931: success en `migraciones / migrar`, `api`, `apps`, `sembrar-e2e`, `sentry`, `e2e / verificar` |
+| `supabase migration list --remote` (dev) | `Target: project lucg-dev (mrmmnotufnenuanapdng)`; Local = Remote: `20261105000000` (0001) y `20261126225903` (0002) |
+| Health de `api-dev` | `{"status":"ok","db":true,"rol_db":"lucg_api","version":"d20ad04","env":"dev"}` (version = SHA corto de la fusión) |
+| e2e contra dev | 6 passed (8.6 s): smoke (consola + versión), login admin + contexto, credenciales malas, worker ping, 401 sin token, PWA sin conexión (manifest instalable). Artefacto `playwright-dev` del run de despliegue. |
+| Salud diaria | https://github.com/gerentelucglogistics-ctrl/LUCG/actions/runs/46057054083 (workflow_dispatch desde `dev`): pata dev success; pata prod failure esperado (prod sin desplegar hasta el plan 12) |
 
 ## Criterios en dev
 
 | Decisión | Criterio | Evidencia |
 | --- | --- | --- |
-| D-08 | | |
-| D-09 | | |
-| D-11 | | |
-| D-12 | | |
-| D-13 | | |
-| D-14 | | |
-| D-15 | | |
-| D-16 | | |
-| D-17 | | |
+| D-08 | Salud diaria por dispatch desde la rama por defecto, pata dev verde | run 46057054083: dev success (prod pendiente del plan 12) |
+| D-09 | El sitio construye dentro del monorepo y responde en dev | `next build` en el job `web` del CI y en Vercel (lucg pass); `https://dev.lucglogistics.com listo` (200 con bypass, job `apps`) |
+| D-11 | `visual-sitio` reporta en el PR | job `visual-sitio` pass en el CI del PR #2 |
+| D-12 | e2e de login contra app-dev | `login.spec.ts` ✓ (admin entra y la API aplica su contexto; credenciales malas → error) |
+| D-13 | e2e sin red de la PWA contra repartidor-dev | `driver-offline.spec.ts` ✓ (manifest instalable y abre sin red). DevTools › Manifest: plan 12 (humano) |
+| D-14 | Health con SHA, db y rol; worker procesa | health `version d20ad04, db true, rol_db lucg_api`; `worker.spec.ts` ✓ (job ping succeeded) |
+| D-15 | Release de Sentry por pipeline | job `sentry` success (release `d20ad04…`, environment dev, proyectos api web driver). Errores de prueba visibles en Sentry: plan 12 (humano) |
+| D-16 | Migraciones por pipeline en dev | job `migraciones / migrar` success; `migration list --remote` con 0001 y 0002 |
+| D-17 | CI requerido y `dev` protegida | `dev`: checks `["api","web"]`, strict, `enforce_admins` true, sin force push ni borrado; la fusión pasó solo con ambos en verde |
 
 ## Prod (humano, D-07)
 
@@ -61,6 +61,11 @@ Rellenar con enlaces y salidas reales. Una fila sin evidencia no cuenta como ver
 | Salud diaria ejecutada | |
 
 ## Desviaciones
+
+- e2e-preview SÍ corrió en el primer PR (pass): api-dev ya existía porque el plan 10 lo creó antes del cierre.
+- Pendiente conocido (no es criterio de la fase): el paso "Contrato de API (Schemathesis)" de `e2e-dev.yml` no prueba nada; usa la opción `--hypothesis-max-examples`, que ya no existe (hoy es `--max-examples`), y el secreto `E2E_TOKEN_ADMIN`, que no está creado, y `|| true` oculta el error. Va al backlog.
+- CI necesitó tres correcciones en la rama: `astral-sh/setup-uv@v10.4.0` (no existe la etiqueta `v10`), `env` a nivel del job `api` (la exportación de OpenAPI importa `app.main`), `.nvmrc` 20 → 24 (pnpm 11 exige Node ≥ 22.13). Vercel `lucg-web` y `lucg-driver` se alinearon a Node 24.x.
+- `cierre-fase.sh` espera a que GitHub registre los checks requeridos antes de vigilarlos (la primera corrida salió con "no checks reported").
 
 - Railway ya no acepta Config as Code (`railway.json`) en proyectos nuevos: responde "deprecated. Use Infrastructure as Code (.railway/railway.ts)". Se usó el plan B del runbook (H-4): la misma configuración de `apps/api/railway.api.json` y `railway.worker.json` (Dockerfile, healthcheck, start command, restart, región) se fijó directamente en cada servicio por la API. Los dos JSON quedan como referencia; migrar a `.railway/railway.ts` va como fase nueva en el ROADMAP, no en esta.
 - Se fija `PORT=8000` en el servicio `api` para que coincida con el `targetPort` del dominio propio.
