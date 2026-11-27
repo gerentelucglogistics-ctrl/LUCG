@@ -1,12 +1,15 @@
 from collections.abc import Iterator
 
 from sqlalchemy import create_engine, text
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.auth import Principal
 from app.core.config import get_settings
 
-_engine = create_engine(get_settings().database_url, pool_pre_ping=True, future=True)
+_engine = create_engine(
+    get_settings().database_url, pool_pre_ping=True, pool_size=3, max_overflow=2, future=True
+)
 SessionLocal = sessionmaker(bind=_engine, autoflush=False, expire_on_commit=False)
 
 
@@ -20,6 +23,10 @@ def sesion_con_contexto(principal: Principal) -> Iterator[Session]:
         yield s
 
 
-def ping() -> bool:
-    with _engine.connect() as c:
-        return c.execute(text("select 1")).scalar() == 1
+def ping() -> str | None:
+    """Consulta real a la base: devuelve el rol de conexión, o None si no responde."""
+    try:
+        with _engine.connect() as c:
+            return c.execute(text("select current_user")).scalar()
+    except SQLAlchemyError:
+        return None
