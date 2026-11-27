@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     storage_bucket_importaciones: str = Field(default="importaciones", alias="STORAGE_BUCKET_IMPORTACIONES")
     sentry_dsn: str = Field(default="", alias="SENTRY_DSN")
     cors_origins: str = Field(default="", alias="CORS_ORIGINS")
+    cors_origin_regex: str | None = Field(default=None, alias="CORS_ORIGIN_REGEX")
 
     @property
     def cors_list(self) -> list[str]:
