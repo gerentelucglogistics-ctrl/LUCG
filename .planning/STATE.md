@@ -47,11 +47,11 @@ Hito: H0 Arranque y descubrimiento · Fase en curso: 0.1 Arranque técnico · Es
 
 ## Última verificación en dev
 
-Ninguna todavía.
+2026-11-27, fase 0.1: dev (`d9ee67c`) y prod (`d98a6f5`) verificados; evidencia en `.planning/phases/00.1-arranque-t-cnico/verificacion.md`.
 
 ## Próximo paso
 
-/gsd:new-project (si no se ha corrido) y luego /gsd:discuss-phase 0.1
+Cerrar 0.1 con las puertas de GSD (code review y verificador) y luego `/clear` y `/gsd:discuss-phase` de la fase 0.2. Backlog: una sola aprobación en deploy-prod, Schemathesis en e2e-dev, Railway a `.railway/railway.ts`.
 
 <!-- Campos agregados al adoptar GSD (2026-11-26). Las herramientas de GSD leen y escriben estos campos; lo de arriba
      sigue siendo el resumen para personas. -->
