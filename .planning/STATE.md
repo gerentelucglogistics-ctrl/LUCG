@@ -41,7 +41,8 @@ Hito: H0 Arranque y descubrimiento · Fase en curso: 0.1 Arranque técnico · Es
 - Contrato IMILE: fórmula de multas y valor por perdido.
 - Lista de 18 repartidores con nombre exacto en IMILE y tarifa.
 - Legal: habilitación postal, política de datos, pólizas.
-- Vercel: plan y proyectos (site, web, driver); Root Directory del proyecto actual → `apps/site`.
+- Railway: Config as Code (`apps/api/railway.*.json`) es obsoleto en proyectos nuevos; la configuración vive en cada servicio. Migrar a `.railway/railway.ts` como fase nueva (2026-11-27).
+- Cuentas de terceros (plan 00.1-10) listas el 2026-11-27; nombres de tokens del llavero en `00.1-10-SUMMARY.md`.
 - Confirmar con LUCG: IMILE primero; portal (H5) y finanzas (H6) después del MVP.
 
 ## Última verificación en dev
