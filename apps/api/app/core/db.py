@@ -1,10 +1,12 @@
 from collections.abc import Iterator
+from typing import Annotated
 
+from fastapi import Depends
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.core.auth import Principal
+from app.core.auth import Principal, principal_actual
 from app.core.config import get_settings
 
 _engine = create_engine(
@@ -21,6 +23,11 @@ def sesion_con_contexto(principal: Principal) -> Iterator[Session]:
             {"tipo": principal.org_tipo, "org": principal.org_id, "roles": principal.roles},
         )
         yield s
+
+
+def sesion_dep(p: Annotated[Principal, Depends(principal_actual)]) -> Iterator[Session]:
+    """Dependencia FastAPI: sesión con el contexto de RLS del usuario autenticado."""
+    yield from sesion_con_contexto(p)
 
 
 def ping() -> str | None:
