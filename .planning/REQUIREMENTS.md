@@ -72,3 +72,74 @@ Numeración estable. Cada fase referencia los requisitos que cubre.
 - N06 Cobertura de pruebas 90 % en envíos y conector IMILE, 70 % global; Playwright en vista previa y en dev.
 - N07 Cada fase desplegada en dev y verificada allí antes de cerrarse; prod solo por PR `dev → main` fusionado a mano.
 - N08 Identidad visual única (tokens compartidos) en sitio público, consola, portal y PWA.
+
+
+<!-- Sección agregada al adoptar GSD (2026-11-26). Se deriva solo de los encabezados de hito de ROADMAP.md y de las
+     fases que nombran un requisito en su texto (3.1, 4.3, 5.6, 6.5). No cambia la numeración. La fase exacta de cada
+     requisito se fija en /gsd:plan-phase. -->
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| R01 | H2 (fase por definir) | Pending |
+| R02 | H2 (fase por definir) | Pending |
+| R03 | H2 (fase por definir) | Pending |
+| R10 | H1 (fase por definir) | Pending |
+| R11 | H1 (fase por definir) | Pending |
+| R12 | H1 (fase por definir) | Pending |
+| R13 | H1 (fase por definir) | Pending |
+| R14 | H1 (fase por definir) | Pending |
+| R20 | H1 (fase por definir) | Pending |
+| R21 | H1 (fase por definir) | Pending |
+| R22 | H1 (fase por definir) | Pending |
+| R23 | H1 (fase por definir) | Pending |
+| R24 | H1 (fase por definir) | Pending |
+| R25 | H1 (fase por definir) | Pending |
+| R26 | H1 (fase por definir) | Pending |
+| R27 | Sin asignar en ROADMAP | Pending |
+| R30 | H2 (fase por definir) | Pending |
+| R31 | H2 (fase por definir) | Pending |
+| R32 | H2 (fase por definir) | Pending |
+| R33 | H2 (fase por definir) | Pending |
+| R34 | Phase 3.1 (H3) | Pending |
+| R40 | H3 (fase por definir) | Pending |
+| R41 | H3 (fase por definir) | Pending |
+| R42 | H3 (fase por definir) | Pending |
+| R43 | H3 (fase por definir) | Pending |
+| R44 | H3 (fase por definir) | Pending |
+| R45 | H3 (fase por definir) | Pending |
+| R50 | H4 (fase por definir) | Pending |
+| R51 | H4 (fase por definir) | Pending |
+| R52 | H4 (fase por definir) | Pending |
+| R53 | Phase 4.3 (H4) | Pending |
+| R54 | Phase 4.3 (H4) | Pending |
+| R60 | H5 (fase por definir) | Pending |
+| R61 | H5 (fase por definir) | Pending |
+| R62 | H5 (fase por definir) | Pending |
+| R63 | H5 (fase por definir) | Pending |
+| R64 | H5 (fase por definir) | Pending |
+| R65 | Phase 5.6 (H5) | Pending |
+| R66 | H5 (fase por definir) | Pending |
+| R70 | H6 (fase por definir) | Pending |
+| R71 | H6 (fase por definir) | Pending |
+| R72 | H6 (fase por definir) | Pending |
+| R73 | H6 (fase por definir) | Pending |
+| R74 | Phase 6.5 (H6) | Pending |
+| R75 | Phase 6.5 (H6) | Pending |
+| N01 | Transversal (sin hito asignado) | Pending |
+| N02 | Transversal (sin hito asignado) | Pending |
+| N03 | Transversal (sin hito asignado) | Pending |
+| N04 | Transversal (sin hito asignado) | Pending |
+| N05 | Transversal (sin hito asignado) | Pending |
+| N06 | Transversal (sin hito asignado) | Pending |
+| N07 | Transversal (sin hito asignado) | Pending |
+| N08 | Transversal (sin hito asignado) | Pending |
+
+**Coverage:**
+- Requisitos: 53 en total (45 funcionales R, 8 no funcionales N)
+- Asignados a un hito en ROADMAP: 44
+- Sin asignar: 9 ⚠️ (R27, N01, N02, N03, N04, N05, N06, N07, N08)
+
+---
+*Trazabilidad agregada: 2026-11-26, al adoptar GSD.*

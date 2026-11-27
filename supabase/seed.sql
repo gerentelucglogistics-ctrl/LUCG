@@ -1,4 +1,8 @@
 -- Seed de catálogos (local y pruebas). Nunca datos reales.
+
+-- Solo local/CI: en el alojado la contraseña la fija el humano por SQL Editor (runbook H-2).
+alter role lucg_api password 'lucg_api';
+
 insert into app.municipios (codigo, nombre, alias) values
  ('05045','APARTADÓ', array['APARTADO']),
  ('05147','CAREPA', array['CAREPA']),

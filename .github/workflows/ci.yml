@@ -3,6 +3,11 @@ on:
   pull_request:
   push:
     branches: [dev, main]
+# Sin pull_request_target: el código de un PR nunca corre con secretos del repo base (T-0.1-28).
+permissions:
+  contents: read
+  deployments: read
+  statuses: read
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -10,43 +15,47 @@ jobs:
   api:
     runs-on: ubuntu-latest
     defaults: { run: { working-directory: apps/api } }
+    # A nivel de job: las pruebas y la exportación de OpenAPI importan app.main, que exige estos valores.
+    env:
+      APP_ENV: test
+      DATABASE_URL: postgresql+psycopg://lucg_api:lucg_api@127.0.0.1:55322/postgres
+      DATABASE_URL_ADMIN: postgresql+psycopg://postgres:postgres@127.0.0.1:55322/postgres
+      SUPABASE_URL: http://127.0.0.1:55321
+      SUPABASE_JWKS_URL: http://127.0.0.1:55321/auth/v1/.well-known/jwks.json
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.4.0
         with: { python-version: "3.12" }
-      - run: uv sync --all-extras --dev
-      - run: uv run ruff check && uv run ruff format --check
+      - run: uv sync --frozen --dev
+      - run: uv run ruff check
+      - run: uv run ruff format --check
       - run: uv run mypy app
-      - uses: supabase/setup-cli@v1
-        with: { version: latest }
+      # CLI fija (T-0.1-33). v3 publica JWKS ES256 por defecto: no hace falta signing_keys_path.
+      - uses: supabase/setup-cli@v3
+        with: { version: 3.4.0 }
       - name: Supabase local
-        run: supabase start
+        run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor
         working-directory: ${{ github.workspace }}
       - name: Migraciones y seed
         run: supabase db reset
         working-directory: ${{ github.workspace }}
       - name: Pruebas
-        env:
-          APP_ENV: test
-          DATABASE_URL: postgresql+psycopg://lucg_api:lucg_api@127.0.0.1:54322/postgres
-          SUPABASE_URL: http://127.0.0.1:54321
-          SUPABASE_JWKS_URL: http://127.0.0.1:54321/auth/v1/.well-known/jwks.json
         run: uv run pytest -q --cov=app --cov-report=xml --cov-fail-under=70
       - name: OpenAPI
         run: uv run python -c "import json; from app.main import app; print(json.dumps(app.openapi()))" > ../../packages/api-client/openapi.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with: { name: openapi, path: packages/api-client/openapi.json }
 
   web:
     runs-on: ubuntu-latest
     needs: api
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with: { node-version-file: .nvmrc, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with: { name: openapi, path: packages/api-client }
       - run: pnpm gen-client
       - name: Cliente sin cambios pendientes
@@ -54,30 +63,127 @@ jobs:
       - run: pnpm lint && pnpm typecheck && pnpm test && pnpm build
 
   e2e-preview:
-    # Corre contra la vista previa de Vercel del PR (URL publicada por la integración de Vercel)
+    # No es check requerido (B-1): no bloquea mientras api-dev no responda (primer despliegue).
+    # Los forks no reciben secretos: el job solo corre si el head es de este repo.
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    needs: web
+    steps:
+      - uses: actions/checkout@v7
+      - name: Salud de api-dev
+        id: api
+        env:
+          API_URL_DEV: ${{ vars.API_URL_DEV }}
+        run: |
+          if [ -n "$API_URL_DEV" ] && curl -sf --max-time 15 "$API_URL_DEV/api/v1/health" >/dev/null; then
+            echo "lista=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "lista=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::api-dev aún no desplegado; e2e-preview se omite"
+            echo "api-dev aún no desplegado; e2e-preview se omite" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: pnpm/action-setup@v6
+        if: steps.api.outputs.lista == 'true'
+      - uses: actions/setup-node@v7
+        if: steps.api.outputs.lista == 'true'
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+        if: steps.api.outputs.lista == 'true'
+      - run: pnpm exec playwright install --with-deps chromium
+        if: steps.api.outputs.lista == 'true'
+      - name: Esperar vista previa de Vercel (web)
+        id: preview
+        if: steps.api.outputs.lista == 'true'
+        continue-on-error: true
+        uses: patrickedqvist/wait-for-vercel-preview@v1.3.3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          environment: "Preview – lucg-web"
+          max_timeout: 600
+          vercel_protection_bypass_header: ${{ secrets.VERCEL_BYPASS_WEB }}
+      - name: Respaldo por la API de Vercel (A10)
+        id: respaldo
+        if: steps.api.outputs.lista == 'true' && steps.preview.outputs.url == ''
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
+        run: scripts/vercel-preview-url.sh "${{ vars.VERCEL_PROJECT_ID_WEB }}" "${{ github.event.pull_request.head.sha }}"
+      - name: Playwright (preview)
+        if: steps.api.outputs.lista == 'true'
+        env:
+          BASE_URL_WEB: ${{ steps.preview.outputs.url || steps.respaldo.outputs.url }}
+          BASE_URL_API: ${{ vars.API_URL_DEV }}
+          VERCEL_BYPASS_WEB: ${{ secrets.VERCEL_BYPASS_WEB }}
+          E2E_USER_ADMIN: ${{ secrets.E2E_USER_ADMIN }}
+          E2E_PASS_ADMIN: ${{ secrets.E2E_PASS_ADMIN }}
+        run: pnpm e2e:preview
+      - uses: actions/upload-artifact@v7
+        if: always() && steps.api.outputs.lista == 'true'
+        with: { name: playwright-preview, path: playwright-report, if-no-files-found: ignore }
+
+  visual-sitio:
+    # Check requerido: siempre reporta. Solo compara si el PR toca el sitio o la identidad visual (D-11).
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     needs: web
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - name: Detectar cambios en el sitio
+        id: cambios
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          ES_FORK: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+        run: |
+          sitio=false
+          if git diff --name-only "origin/${BASE_REF}...HEAD" | grep -Eq '^(apps/site/|packages/ui/)'; then
+            sitio=true
+          fi
+          if [ "$sitio" = "true" ] && [ "$ES_FORK" = "true" ]; then
+            echo "::notice::PR de fork sin acceso a secretos; comparación visual omitida"
+            sitio=false
+          elif [ "$sitio" != "true" ]; then
+            echo "::notice::sin cambios en el sitio; comparación visual omitida"
+          fi
+          echo "sitio=$sitio" >> "$GITHUB_OUTPUT"
+      - uses: pnpm/action-setup@v6
+        if: steps.cambios.outputs.sitio == 'true'
+      - uses: actions/setup-node@v7
+        if: steps.cambios.outputs.sitio == 'true'
         with: { node-version-file: .nvmrc, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+        if: steps.cambios.outputs.sitio == 'true'
       - run: pnpm exec playwright install --with-deps chromium
-      - name: Esperar vista previa de Vercel
+        if: steps.cambios.outputs.sitio == 'true'
+      - name: Esperar vista previa de Vercel (sitio)
         id: preview
-        uses: patrickedqvist/wait-for-vercel-preview@v1.3.2
+        if: steps.cambios.outputs.sitio == 'true'
+        continue-on-error: true
+        uses: patrickedqvist/wait-for-vercel-preview@v1.3.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          environment: "Preview – lucg"
           max_timeout: 600
-      - name: Playwright (preview)
+          vercel_protection_bypass_header: ${{ secrets.VERCEL_BYPASS_SITE }}
+      - name: Respaldo por la API de Vercel (A10)
+        id: respaldo
+        if: steps.cambios.outputs.sitio == 'true' && steps.preview.outputs.url == ''
         env:
-          BASE_URL_WEB: ${{ steps.preview.outputs.url }}
-          BASE_URL_API: ${{ vars.API_URL_DEV }}
-          E2E_USER_ADMIN: ${{ secrets.E2E_USER_ADMIN }}
-          E2E_PASS_ADMIN: ${{ secrets.E2E_PASS_ADMIN }}
-        run: pnpm e2e:preview
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with: { name: playwright-preview, path: playwright-report }
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
+        run: scripts/vercel-preview-url.sh "${{ vars.VERCEL_PROJECT_ID_SITE }}" "${{ github.event.pull_request.head.sha }}"
+      - name: Línea base (sitio en prod)
+        if: steps.cambios.outputs.sitio == 'true'
+        env:
+          BASE_URL_SITE_PROD: ${{ vars.URL_SITE_PROD }}
+        run: pnpm exec playwright test --project=sitio-prod --update-snapshots=all
+      - name: Comparar con el preview
+        if: steps.cambios.outputs.sitio == 'true'
+        env:
+          BASE_URL_SITE_PREVIEW: ${{ steps.preview.outputs.url || steps.respaldo.outputs.url }}
+          VERCEL_BYPASS_SITE: ${{ secrets.VERCEL_BYPASS_SITE }}
+        run: pnpm exec playwright test --project=sitio-preview
+      - uses: actions/upload-artifact@v7
+        if: failure() && steps.cambios.outputs.sitio == 'true'
+        with: { name: playwright-visual-sitio, path: playwright-report, if-no-files-found: ignore }

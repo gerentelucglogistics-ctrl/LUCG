@@ -1,0 +1,31 @@
+name: Salud diaria
+# Sin environment a propósito: el revisor requerido de prod bloquearía el cron (D-08).
+on:
+  schedule:
+    - cron: "17 11 * * *" # 06:17 America/Bogota
+  workflow_dispatch:
+permissions: {}
+jobs:
+  salud:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - entorno: dev
+            url: ${{ vars.API_URL_DEV }}
+          - entorno: prod
+            url: ${{ vars.API_URL_PROD }}
+    steps:
+      - name: Health de ${{ matrix.entorno }}
+        env:
+          URL: ${{ matrix.url }}
+          ENTORNO: ${{ matrix.entorno }}
+        run: |
+          if [ -z "$URL" ]; then
+            echo "::error::URL de la API vacía para ${ENTORNO}"
+            exit 1
+          fi
+          resp=$(curl -sf --max-time 30 "${URL}/api/v1/health") || { echo "::error::${ENTORNO} no respondió"; exit 1; }
+          echo "$resp"
+          echo "$resp" | grep -Eq '"db": *true' || { echo "::error::${ENTORNO} reporta db distinta de true"; exit 1; }

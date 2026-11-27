@@ -1,29 +1,9 @@
 @import "tailwindcss";
 
+@import "@lucg/ui/tokens.css";
+
+/* Paleta y fuentes: fuente única en packages/ui/src/tokens.css. Aquí solo van las animaciones propias del sitio. */
 @theme {
-  /* Paleta de marca (logo): azul #011C52 y naranja #DA6106 */
-  --color-navy-950: #010f2e;
-  --color-navy-900: #011c52;
-  --color-navy-800: #0a2a6b;
-  --color-navy-700: #173c85;
-  --color-navy-100: #e6ebf5;
-  --color-navy-50: #f3f6fb;
-
-  --color-brand-800: #983f02;
-  --color-brand-700: #b44f04;
-  --color-brand-600: #da6106;
-  --color-brand-500: #f07412;
-  --color-brand-400: #ff8f3a;
-  --color-brand-100: #fdebdc;
-
-  --color-ink: #0b1733;
-  --color-muted: #55607a;
-  --color-line: #e3e7ef;
-  --color-paper: #f6f7fa;
-
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
-
   --animate-dash: dash 1.6s linear infinite;
   --animate-float: float 6s ease-in-out infinite;
 

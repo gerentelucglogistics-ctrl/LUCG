@@ -11,4 +11,7 @@ re '(^|[;&|[:space:]])gh[[:space:]]+pr[[:space:]]+merge' && bloquear "fusionar P
 re '(^|[;&|[:space:]])gh[[:space:]]+pr[[:space:]]+create[^;&|]*--base[[:space:]=]+main' && bloquear "PR hacia main"
 re '(^|[;&|[:space:]])gh[[:space:]]+workflow[[:space:]]+run[^;&|]*deploy-prod' && bloquear "lanzar el despliegue a prod"
 re '(^|[;&|[:space:]])(vercel|railway|fly|flyctl|supabase)[[:space:]][^;&|]*(--prod([[:space:]]|$)|--environment[[:space:]=]+prod|production|produccion)' && bloquear "comando de infraestructura contra prod"
+re '(^|[;&|])[[:space:]]*supabase[[:space:]]+(db[[:space:]]+(reset|push)|migration[[:space:]]+(up|repair|list))[^;&|]*(--remote|--linked|--db-url)' && bloquear "base remota: las migraciones remotas solo las aplica migrate.yml (D-16)"
+re '(^|[;&|])[[:space:]]*supabase[[:space:]]+link' && bloquear "enlazar un proyecto alojado (solo CI)"
+re '(^|[;&|[:space:]])git[[:space:]]+push([[:space:]]+[^;&|]*)?[[:space:]:]dev([[:space:]]|$)' && bloquear "push directo a dev (solo por PR con cierre-fase)"
 exit 0
