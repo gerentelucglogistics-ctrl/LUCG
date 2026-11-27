@@ -43,9 +43,9 @@ Rellenar con enlaces y salidas reales. Una fila sin evidencia no cuenta como ver
 | D-09 | El sitio construye dentro del monorepo y responde en dev | `next build` en el job `web` del CI y en Vercel (lucg pass); `https://dev.lucglogistics.com listo` (200 con bypass, job `apps`) |
 | D-11 | `visual-sitio` reporta en el PR | job `visual-sitio` pass en el CI del PR #2 |
 | D-12 | e2e de login contra app-dev | `login.spec.ts` ✓ (admin entra y la API aplica su contexto; credenciales malas → error) |
-| D-13 | e2e sin red de la PWA contra repartidor-dev | `driver-offline.spec.ts` ✓ (manifest instalable y abre sin red). DevTools › Manifest: plan 12 (humano) |
+| D-13 | e2e sin red de la PWA contra repartidor-dev | `driver-offline.spec.ts` ✓ (manifest instalable y abre sin red). DevTools › Manifest y service worker activo: verificado por el desarrollador el 2026-11-27 ("dev verificado") |
 | D-14 | Health con SHA, db y rol; worker procesa | health `version d20ad04, db true, rol_db lucg_api`; `worker.spec.ts` ✓ (job ping succeeded) |
-| D-15 | Release de Sentry por pipeline | job `sentry` success (release `d20ad04…`, environment dev, proyectos api web driver). Errores de prueba visibles en Sentry: plan 12 (humano) |
+| D-15 | Release de Sentry por pipeline | job `sentry` success (release `d20ad04…`, environment dev, proyectos api web driver). Errores de prueba 2026-11-27, los tres con environment=dev y release `d20ad04c054648a9dbc992e4e53cb2f51fff0bd9`: API-2 https://lucg-logistics.sentry.io/issues/7871272417/ (POST /diagnostico/error, 500), WEB-1 https://lucg-logistics.sentry.io/issues/7871273541/ (botón de la consola), DRIVER-1 https://lucg-logistics.sentry.io/issues/7871270596/ (diagnóstico de la PWA). Login con E2E_USER_ADMIN y consola con rol_db `lucg_api`, org_tipo `lucg`: desarrollador. |
 | D-16 | Migraciones por pipeline en dev | job `migraciones / migrar` success; `migration list --remote` con 0001 y 0002 |
 | D-17 | CI requerido y `dev` protegida | `dev`: checks `["api","web"]`, strict, `enforce_admins` true, sin force push ni borrado; la fusión pasó solo con ambos en verde |
 
@@ -72,3 +72,5 @@ Rellenar con enlaces y salidas reales. Una fila sin evidencia no cuenta como ver
 - Los secretos (contraseñas de `postgres` y `lucg_api`, tokens de despliegue) los generó el agente o el script sin imprimirlos, y viven en el llavero de macOS del desarrollador hasta cargarlos en GitHub.
 
 - El paso H-3 de RESEARCH (crear `lucg_api` con contraseña) se adelanta a H-2 del runbook, para que el rol exista con contraseña propia antes del primer push.
+
+- **Errores de prueba de la consola y la API (plan 12):** los clics del desarrollador no llegaron a Sentry (la PWA sí). La configuración estaba bien (DSN de cada proyecto, environment y release). El agente los disparó contra dev: la API con un token del admin e2e y la consola en Chromium limpio (envelope 200). Causa probable: un bloqueador en el navegador del desarrollador corta `*.ingest.sentry.io`. Para prod, probar en una ventana sin extensiones. Un `tunnel` de Sentry quedaría como mejora futura.
