@@ -1,0 +1,46 @@
+name: Pruebas en dev
+# Las encadena deploy-dev.yml (workflow_call, D-14); también se pueden lanzar a mano.
+on:
+  workflow_call:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    environment: dev
+    env:
+      BASE_URL_WEB: ${{ vars.URL_WEB_DEV }}
+      BASE_URL_DRIVER: ${{ vars.URL_DRIVER_DEV }}
+      BASE_URL_API: ${{ vars.API_URL_DEV }}
+      BASE_URL_SITE: ${{ vars.URL_SITE_DEV }}
+      VERCEL_BYPASS_WEB: ${{ secrets.VERCEL_BYPASS_WEB }}
+      VERCEL_BYPASS_DRIVER: ${{ secrets.VERCEL_BYPASS_DRIVER }}
+      VERCEL_BYPASS_SITE: ${{ secrets.VERCEL_BYPASS_SITE }}
+      E2E_USER_ADMIN: ${{ secrets.E2E_USER_ADMIN }}
+      E2E_PASS_ADMIN: ${{ secrets.E2E_PASS_ADMIN }}
+      E2E_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      E2E_SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Humo
+        run: ./scripts/smoke.sh dev
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Playwright (dev)
+        run: pnpm e2e:dev
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with: { name: playwright-dev, path: playwright-report, if-no-files-found: ignore }
+      - uses: astral-sh/setup-uv@v10.4.0
+      - name: Contrato de API (Schemathesis)
+        run: |
+          uvx schemathesis run "$BASE_URL_API/openapi.json" --checks all --hypothesis-max-examples=30 \
+            --header "Authorization: Bearer ${{ secrets.E2E_TOKEN_ADMIN }}" || true
+      - name: Resumen
+        if: always()
+        run: |
+          echo "Evidencia: artefacto playwright-dev de esta ejecución; release Sentry ${GITHUB_SHA}" >> "$GITHUB_STEP_SUMMARY"

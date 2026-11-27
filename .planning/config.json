@@ -1,0 +1,49 @@
+{
+  "mode": "yolo",
+  "granularity": "standard",
+  "model_profile": "balanced",
+  "model_overrides": {
+    "gsd-planner": "opus",
+    "gsd-roadmapper": "opus",
+    "gsd-project-researcher": "opus",
+    "gsd-phase-researcher": "opus",
+    "gsd-research-synthesizer": "opus",
+    "gsd-plan-checker": "opus",
+    "gsd-debugger": "opus",
+    "gsd-verifier": "opus",
+    "gsd-integration-checker": "opus",
+    "gsd-ui-researcher": "opus",
+    "gsd-ui-checker": "opus",
+    "gsd-ui-auditor": "opus",
+    "gsd-nyquist-auditor": "opus",
+    "gsd-security-auditor": "opus",
+    "gsd-codebase-mapper": "sonnet",
+    "gsd-executor": "sonnet"
+  },
+  "planning": {
+    "commit_docs": true,
+    "search_gitignored": false
+  },
+  "workflow": {
+    "research": true,
+    "plan_check": true,
+    "verifier": true,
+    "nyquist_validation": true,
+    "auto_advance": false
+  },
+  "parallelization": {
+    "enabled": true,
+    "plan_level": true,
+    "task_level": false,
+    "max_concurrent_agents": 3
+  },
+  "git": {
+    "branching_strategy": "phase",
+    "base_branch": "dev",
+    "phase_branch_template": "fase/{phase}-{slug}"
+  },
+  "safety": {
+    "always_confirm_destructive": true,
+    "always_confirm_external_services": false
+  }
+}

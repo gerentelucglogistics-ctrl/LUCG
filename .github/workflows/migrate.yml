@@ -1,0 +1,39 @@
+name: Migraciones
+# Única vía para migrar bases alojadas (D-16). CLI fija, sin seed (el seed lleva la contraseña local de lucg_api).
+on:
+  workflow_call:
+    inputs:
+      entorno: { required: true, type: string }
+  workflow_dispatch:
+    inputs:
+      entorno:
+        description: dev | prod
+        required: true
+        default: dev
+permissions:
+  contents: read
+jobs:
+  migrar:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.entorno }}
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_ENV: ${{ inputs.entorno }}
+      REF: ${{ vars.SUPABASE_PROJECT_REF }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Verificar proyecto de Supabase
+        run: |
+          if [ -z "$REF" ]; then
+            echo "::error::SUPABASE_PROJECT_REF está vacía en el entorno ${SUPABASE_ENV}; no se migra"
+            exit 1
+          fi
+      - uses: supabase/setup-cli@v3
+        with: { version: 3.4.0 }
+      - name: Enlazar proyecto
+        run: supabase link --project-ref "$REF"
+      - name: Aplicar migraciones
+        run: supabase db push --yes --remote
+      - name: Estado de migraciones
+        run: supabase migration list --remote

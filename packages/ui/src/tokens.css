@@ -1,0 +1,36 @@
+/* Identidad visual LUCG — fuente única. La importan apps/site, apps/web y apps/driver después de "tailwindcss".
+   Paleta tomada del logo: azul #011C52 (navy-900) y naranja #DA6106 (brand-600).
+   Texto pequeño y botones sobre blanco: brand-700 (contraste AA). Cambios de marca se hacen SOLO aquí. */
+@theme {
+  --color-navy-950: #010f2e;
+  --color-navy-900: #011c52;
+  --color-navy-800: #0a2a6b;
+  --color-navy-700: #173c85;
+  --color-navy-100: #e6ebf5;
+  --color-navy-50: #f3f6fb;
+
+  --color-brand-800: #983f02;
+  --color-brand-700: #b44f04;
+  --color-brand-600: #da6106;
+  --color-brand-500: #f07412;
+  --color-brand-400: #ff8f3a;
+  --color-brand-100: #fdebdc;
+
+  --color-ink: #0b1733;
+  --color-muted: #55607a;
+  --color-line: #e3e7ef;
+  --color-paper: #f6f7fa;
+
+  /* Estados operativos (semáforo de plazos, novedades, sincronización). Nunca hex sueltos en las apps. */
+  --color-estado-ok: #15803d;
+  --color-estado-ok-fondo: #dcfce7;
+  --color-estado-alerta: #b45309;
+  --color-estado-alerta-fondo: #fef3c7;
+  --color-estado-error: #b91c1c;
+  --color-estado-error-fondo: #fee2e2;
+  --color-estado-info: #173c85;
+  --color-estado-info-fondo: #e6ebf5;
+
+  --font-sans: var(--font-inter, "Inter"), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-montserrat, "Montserrat"), ui-sans-serif, system-ui, sans-serif;
+}

@@ -1,0 +1,75 @@
+name: Despliegue a prod
+# Prod se publica cuando el desarrollador principal fusiona a mano el PR dev -> main.
+# Vercel publica main en los dominios de producción (integración con Git); este flujo migra la base,
+# despliega API y worker y corre el humo. El entorno "prod" de GitHub exige aprobación manual.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+concurrency: { group: deploy-prod, cancel-in-progress: false }
+permissions:
+  contents: read
+jobs:
+  aprobacion:
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Confirmación manual
+        run: |
+          echo "Supabase Free no tiene respaldos automáticos (D-04); prod no tiene datos reales hasta H4."
+          echo "Aprobar solo si el PR dev -> main lo fusionó el desarrollador."
+  migraciones:
+    needs: aprobacion
+    uses: ./.github/workflows/migrate.yml
+    with: { entorno: prod }
+    secrets: inherit
+  api:
+    needs: migraciones
+    runs-on: ubuntu-latest
+    environment: prod
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      API_URL: ${{ vars.API_URL_PROD }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Desplegar API y worker (Railway)
+        run: |
+          npm i -g @railway/cli@5
+          railway variables --service api --set "APP_VERSION=${GITHUB_SHA}" --skip-deploys
+          railway variables --service worker --set "APP_VERSION=${GITHUB_SHA}" --skip-deploys
+          railway up apps/api --path-as-root --service api --ci
+          railway up apps/api --path-as-root --service worker --ci
+      - name: Esperar versión desplegada
+        run: |
+          [ -n "$API_URL" ] || { echo "API_URL_PROD vacía"; exit 1; }
+          for i in $(seq 1 30); do
+            resp=$(curl -s --max-time 15 "${API_URL}/api/v1/health" || true)
+            v=$(echo "$resp" | jq -r '.version // ""' 2>/dev/null || true)
+            db=$(echo "$resp" | jq -r '.db // ""' 2>/dev/null || true)
+            if [ "$v" = "${GITHUB_SHA::7}" ] && [ "$db" = "true" ]; then
+              echo "API en $v (db=$db)"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "La API no reportó la versión ${GITHUB_SHA::7} con db=true"
+          exit 1
+  humo:
+    needs: api
+    runs-on: ubuntu-latest
+    environment: prod
+    env:
+      BASE_URL_WEB: ${{ vars.URL_WEB_PROD }}
+      BASE_URL_DRIVER: ${{ vars.URL_DRIVER_PROD }}
+      BASE_URL_API: ${{ vars.API_URL_PROD }}
+      BASE_URL_SITE: ${{ vars.URL_SITE_PROD }}
+    steps:
+      # Historia completa: set-commits busca el SHA de la release anterior.
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - run: ./scripts/smoke.sh prod
+      - uses: getsentry/action-release@v3
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+        with: { environment: prod, release: "${{ github.sha }}", projects: api web driver, ignore_missing: true }

@@ -1,0 +1,111 @@
+name: Despliegue a dev
+on:
+  push:
+    branches: [dev]
+concurrency: { group: deploy-dev, cancel-in-progress: false }
+permissions:
+  contents: read
+jobs:
+  migraciones:
+    uses: ./.github/workflows/migrate.yml
+    with: { entorno: dev }
+    secrets: inherit
+
+  api:
+    needs: migraciones
+    runs-on: ubuntu-latest
+    environment: dev
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      API_URL: ${{ vars.API_URL_DEV }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Desplegar API y worker (Railway)
+        run: |
+          npm i -g @railway/cli@5
+          # Un archivo de versión ignorado por git no viajaría (railway up respeta .gitignore): va como variable.
+          railway variables --service api --set "APP_VERSION=${GITHUB_SHA}" --skip-deploys
+          railway variables --service worker --set "APP_VERSION=${GITHUB_SHA}" --skip-deploys
+          railway up apps/api --path-as-root --service api --ci
+          railway up apps/api --path-as-root --service worker --ci
+      - name: Esperar versión desplegada
+        run: |
+          [ -n "$API_URL" ] || { echo "API_URL_DEV vacía"; exit 1; }
+          for i in $(seq 1 30); do
+            resp=$(curl -s --max-time 15 "${API_URL}/api/v1/health" || true)
+            v=$(echo "$resp" | jq -r '.version // ""' 2>/dev/null || true)
+            db=$(echo "$resp" | jq -r '.db // ""' 2>/dev/null || true)
+            rol=$(echo "$resp" | jq -r '.rol_db // ""' 2>/dev/null || true)
+            if [ "$v" = "${GITHUB_SHA::7}" ] && [ "$db" = "true" ] && [ "$rol" = "lucg_api" ]; then
+              echo "API en $v (db=$db, rol_db=$rol)"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "La API no reportó la versión ${GITHUB_SHA::7} con db=true y rol_db=lucg_api"
+          exit 1
+
+  apps:
+    needs: migraciones
+    runs-on: ubuntu-latest
+    environment: dev
+    env:
+      URL_SITE: ${{ vars.URL_SITE_DEV }}
+      URL_WEB: ${{ vars.URL_WEB_DEV }}
+      URL_DRIVER: ${{ vars.URL_DRIVER_DEV }}
+      BYPASS_SITE: ${{ secrets.VERCEL_BYPASS_SITE }}
+      BYPASS_WEB: ${{ secrets.VERCEL_BYPASS_WEB }}
+      BYPASS_DRIVER: ${{ secrets.VERCEL_BYPASS_DRIVER }}
+    steps:
+      # Vercel despliega la rama dev por su integración con Git; aquí solo se espera a que respondan.
+      - name: Esperar despliegues de Vercel
+        run: |
+          fallo=0
+          for par in "$URL_SITE|$BYPASS_SITE" "$URL_WEB|$BYPASS_WEB" "$URL_DRIVER|$BYPASS_DRIVER"; do
+            u="${par%%|*}"; b="${par#*|}"
+            if [ -z "$u" ]; then echo "URL vacía, se omite"; continue; fi
+            ok=0
+            for i in $(seq 1 30); do
+              code=$(curl -s -o /dev/null -w '%{http_code}' -H "x-vercel-protection-bypass: ${b}" "$u" || true)
+              if [ "$code" = "200" ]; then echo "$u listo"; ok=1; break; fi
+              sleep 10
+            done
+            [ "$ok" = "1" ] || { echo "::error::$u no llegó a 200"; fallo=1; }
+          done
+          exit "$fallo"
+
+  sembrar-e2e:
+    needs: migraciones
+    runs-on: ubuntu-latest
+    environment: dev
+    env:
+      SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      E2E_USER_ADMIN: ${{ secrets.E2E_USER_ADMIN }}
+      E2E_PASS_ADMIN: ${{ secrets.E2E_PASS_ADMIN }}
+    steps:
+      - uses: actions/checkout@v7
+      - run: ./scripts/sembrar-usuario-e2e.sh dev
+
+  e2e:
+    needs: [api, apps, sembrar-e2e]
+    uses: ./.github/workflows/e2e-dev.yml
+    secrets: inherit
+
+  sentry:
+    needs: [api, apps]
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      # Historia completa: set-commits busca el SHA de la release anterior.
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - uses: getsentry/action-release@v3
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+        with:
+          environment: dev
+          release: ${{ github.sha }}
+          projects: api web driver
+          ignore_missing: true

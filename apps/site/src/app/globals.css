@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@import "@lucg/ui/tokens.css";
+
+/* Paleta y fuentes: fuente única en packages/ui/src/tokens.css. Aquí solo van las animaciones propias del sitio. */
+@theme {
+  --animate-dash: dash 1.6s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+
+  @keyframes dash {
+    to {
+      stroke-dashoffset: -24;
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+  body {
+    background: #fff;
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: var(--color-brand-600);
+    color: #fff;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+@utility container-site {
+  width: 100%;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  @media (width >= 64rem) {
+    padding-inline: 2rem;
+  }
+}
+
+/* Retícula técnica sutil usada en fondos oscuros */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

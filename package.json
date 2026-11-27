@@ -1,33 +1,22 @@
 {
-  "name": "lucg-web",
-  "version": "0.1.0",
+  "name": "lucg-plataforma",
   "private": true,
+  "packageManager": "pnpm@11.20.0",
+  "engines": { "node": ">=22.13" },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "format": "prettier --write src"
-  },
-  "dependencies": {
-    "lucide-react": "^1.47.0",
-    "motion": "^13.4.2",
-    "next": "16.3.6",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "sharp": "^0.35.4"
+    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "e2e": "playwright test --project=local",
+    "e2e:preview": "playwright test --project=preview",
+    "e2e:dev": "playwright test --project=dev --project=dev-driver",
+    "gen-client": "pnpm --filter @lucg/api-client gen"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.3.6",
-    "prettier": "^3.9.9",
-    "prettier-plugin-tailwindcss": "^0.8.1",
-    "tailwindcss": "^4",
-    "typescript": "^5"
-  },
-  "packageManager": "pnpm@11.20.0"
+    "@playwright/test": "^1.48.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3"
+  }
 }
