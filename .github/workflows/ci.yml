@@ -15,6 +15,13 @@ jobs:
   api:
     runs-on: ubuntu-latest
     defaults: { run: { working-directory: apps/api } }
+    # A nivel de job: las pruebas y la exportación de OpenAPI importan app.main, que exige estos valores.
+    env:
+      APP_ENV: test
+      DATABASE_URL: postgresql+psycopg://lucg_api:lucg_api@127.0.0.1:55322/postgres
+      DATABASE_URL_ADMIN: postgresql+psycopg://postgres:postgres@127.0.0.1:55322/postgres
+      SUPABASE_URL: http://127.0.0.1:55321
+      SUPABASE_JWKS_URL: http://127.0.0.1:55321/auth/v1/.well-known/jwks.json
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v10.4.0
@@ -33,12 +40,6 @@ jobs:
         run: supabase db reset
         working-directory: ${{ github.workspace }}
       - name: Pruebas
-        env:
-          APP_ENV: test
-          DATABASE_URL: postgresql+psycopg://lucg_api:lucg_api@127.0.0.1:55322/postgres
-          DATABASE_URL_ADMIN: postgresql+psycopg://postgres:postgres@127.0.0.1:55322/postgres
-          SUPABASE_URL: http://127.0.0.1:55321
-          SUPABASE_JWKS_URL: http://127.0.0.1:55321/auth/v1/.well-known/jwks.json
         run: uv run pytest -q --cov=app --cov-report=xml --cov-fail-under=70
       - name: OpenAPI
         run: uv run python -c "import json; from app.main import app; print(json.dumps(app.openapi()))" > ../../packages/api-client/openapi.json
