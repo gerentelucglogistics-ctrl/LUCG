@@ -26,9 +26,13 @@ api_jq() {
   gh api "repos/$R/$ruta" | jq -e "$@" "$filtro"
 }
 
-prod_revisor_unico() { api_jq environments/prod '[.protection_rules[]? | select(.type=="required_reviewers") | .reviewers[].reviewer.login] == [$rev]' --arg rev "$LUCG_REVISOR_PROD"; }
-prod_sin_bypass() { api_jq environments/prod '.can_admins_bypass == false'; }
-prod_autorevision() { api_jq environments/prod '[.protection_rules[]? | select(.type=="required_reviewers") | .prevent_self_review][0] == false'; }
+# environments/prod se lee una sola vez; si la lectura falla, PROD queda vacío y sus comprobaciones fallan.
+PROD=$(gh api "repos/$R/environments/prod" 2>/dev/null || true)
+prod_jq() { [ -n "$PROD" ] && jq -e "$@" <<<"$PROD"; }
+
+prod_revisor_unico() { prod_jq --arg rev "$LUCG_REVISOR_PROD" '[.protection_rules[]? | select(.type=="required_reviewers") | .reviewers[].reviewer.login] == [$rev]'; }
+prod_sin_bypass() { prod_jq '.can_admins_bypass == false'; }
+prod_autorevision() { prod_jq '[.protection_rules[]? | select(.type=="required_reviewers") | .prevent_self_review][0] == false'; }
 prod_solo_main() { api_jq environments/prod/deployment-branch-policies '[.branch_policies[].name] == ["main"]'; }
 
 production_ausente() {
@@ -41,7 +45,7 @@ production_ausente() {
 }
 
 bot_write_sin_admin() { api_jq "collaborators/$LUCG_BOT/permission" '.permission == "write" and .user.permissions.admin == false'; }
-bot_no_revisor() { api_jq environments/prod '[.protection_rules[]? | .reviewers[]?.reviewer.login] | index($bot) == null' --arg bot "$LUCG_BOT"; }
+bot_no_revisor() { prod_jq --arg bot "$LUCG_BOT" '[.protection_rules[]? | .reviewers[]?.reviewer.login] | index($bot) == null'; }
 dev_checks() { api_jq branches/dev '(.protection.required_status_checks.contexts // []) as $c | ($c | index("api")) != null and ($c | index("web")) != null and ($c | index("guardia")) != null'; }
 # Sin valor por defecto: un strict ausente debe fallar. Solo con token admin (el resumen sin admin no trae strict).
 dev_sin_strict() { gh api "repos/$R/branches/dev/protection/required_status_checks" | jq -e '.strict == false'; }

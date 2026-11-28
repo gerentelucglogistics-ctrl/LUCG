@@ -126,7 +126,7 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
-        run: scripts/vercel-preview-url.sh "${{ vars.VERCEL_PROJECT_ID_WEB }}" "${{ github.event.pull_request.head.sha }}"
+        run: scripts/vercel-preview-url.sh "${{ vars.VERCEL_PROJECT_ID_WEB }}" "${{ github.event.pull_request.head.sha }}" alias
       - name: Playwright (preview)
         if: steps.api.outputs.lista == 'true'
         env:

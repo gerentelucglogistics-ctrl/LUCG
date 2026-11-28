@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 # Respaldo (A10) para obtener la URL del preview de un proyecto de Vercel por SHA de commit.
-# Uso: VERCEL_TOKEN=... [VERCEL_TEAM_ID=...] ./scripts/vercel-preview-url.sh <projectId> <sha>
+# Uso: VERCEL_TOKEN=... [VERCEL_TEAM_ID=...] ./scripts/vercel-preview-url.sh <projectId> <sha> [alias]
+# Con "alias" (consola web) espera el alias de rama en vez de devolver el host único: api-dev solo
+# acepta por CORS_ORIGIN_REGEX los alias lucg-(web|driver)-git-<rama>-lucg.vercel.app.
 # Escribe url=https://<host> en $GITHUB_OUTPUT (si existe) y lo imprime.
 set -euo pipefail
 PROYECTO="${1:?uso: vercel-preview-url.sh <projectId> <sha>}"
 SHA="${2:?uso: vercel-preview-url.sh <projectId> <sha>}"
+REQUIERE_ALIAS="${3:-}"
 : "${VERCEL_TOKEN:?VERCEL_TOKEN requerido}"
 
 EQUIPO=""
@@ -22,7 +25,11 @@ for _ in $(seq 1 60); do
       alias_rama=$(curl -sf --max-time 30 -H "Authorization: Bearer ${VERCEL_TOKEN}" \
         "https://api.vercel.com/v13/deployments/${host}?${EQUIPO#&}" 2>/dev/null \
         | jq -r '[.alias[]? | select(test("-git-"))][0] // empty' || true)
-      [ -n "$alias_rama" ] && host="$alias_rama"
+      if [ -n "$alias_rama" ]; then
+        host="$alias_rama"
+      elif [ "$REQUIERE_ALIAS" = alias ]; then
+        host=""  # el alias se asigna después de READY: seguir esperando
+      fi
     fi
     if [ -n "$host" ]; then
       echo "url=https://${host}" | tee -a "${GITHUB_OUTPUT:-/dev/null}"
