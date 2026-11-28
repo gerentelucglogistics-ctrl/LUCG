@@ -63,7 +63,7 @@ jobs:
       - run: pnpm lint && pnpm typecheck && pnpm test && pnpm build
 
   e2e-preview:
-    # No es check requerido (B-1): no bloquea mientras api-dev no responda (primer despliegue).
+    # Check exigido por fusionar-dev.sh (D-14); no es requerido por la protección de dev.
     # Los forks no reciben secretos: el job solo corre si el head es de este repo.
     # Solo PR hacia dev: en los PR con main no hay vista previa de Vercel (main publica en Production).
     if: github.event_name == 'pull_request' && github.base_ref == 'dev' && github.event.pull_request.head.repo.full_name == github.repository
@@ -118,10 +118,24 @@ jobs:
           VERCEL_BYPASS_WEB: ${{ secrets.VERCEL_BYPASS_WEB }}
           E2E_USER_ADMIN: ${{ secrets.E2E_USER_ADMIN }}
           E2E_PASS_ADMIN: ${{ secrets.E2E_PASS_ADMIN }}
+          E2E_SUPABASE_URL: ${{ vars.E2E_SUPABASE_URL }}
+          E2E_SUPABASE_PUBLISHABLE_KEY: ${{ vars.E2E_SUPABASE_PUBLISHABLE_KEY }}
         run: pnpm e2e:preview
+      - name: Compuerta de secretos
+        id: compuerta
+        if: failure() && steps.api.outputs.lista == 'true'
+        env:
+          E2E_USER_ADMIN: ${{ secrets.E2E_USER_ADMIN }}
+          E2E_PASS_ADMIN: ${{ secrets.E2E_PASS_ADMIN }}
+          VERCEL_BYPASS_WEB: ${{ secrets.VERCEL_BYPASS_WEB }}
+        run: python3 -I scripts/compuerta-secretos.py playwright-report
       - uses: actions/upload-artifact@v7
-        if: always() && steps.api.outputs.lista == 'true'
-        with: { name: playwright-preview, path: playwright-report, if-no-files-found: ignore }
+        if: failure() && steps.compuerta.outcome == 'success'
+        with:
+          name: playwright-preview
+          path: playwright-report
+          if-no-files-found: ignore
+          retention-days: 7
 
   visual-sitio:
     # Check requerido: siempre reporta. Solo compara si el PR toca el sitio o la identidad visual (D-11).
@@ -185,6 +199,16 @@ jobs:
           BASE_URL_SITE_PREVIEW: ${{ steps.preview.outputs.url || steps.respaldo.outputs.url }}
           VERCEL_BYPASS_SITE: ${{ secrets.VERCEL_BYPASS_SITE }}
         run: pnpm exec playwright test --project=sitio-preview
-      - uses: actions/upload-artifact@v7
+      - name: Compuerta de secretos
+        id: compuerta
         if: failure() && steps.cambios.outputs.sitio == 'true'
-        with: { name: playwright-visual-sitio, path: playwright-report, if-no-files-found: ignore }
+        env:
+          VERCEL_BYPASS_SITE: ${{ secrets.VERCEL_BYPASS_SITE }}
+        run: python3 -I scripts/compuerta-secretos.py playwright-report
+      - uses: actions/upload-artifact@v7
+        if: failure() && steps.compuerta.outcome == 'success'
+        with:
+          name: playwright-visual-sitio
+          path: playwright-report
+          if-no-files-found: ignore
+          retention-days: 7
