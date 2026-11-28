@@ -6,7 +6,7 @@ current_phase: 00.1.1
 current_phase_name: endurecimiento-de-seguridad
 current_plan: 1
 status: executing
-stopped_at: "00.1.1-02 tareas 1-2 hechas (1300c97). Task 3 enmendada: el desarrollador eligió NO cerrar las credenciales de jaras97 (opción 2, riesgo aceptado en ADR-009); solo reinicia Claude Code. Al volver: verificar gh auth status / gh api user / git var GIT_AUTHOR_IDENT = bot, escribir 00.1.1-02-SUMMARY.md con la desviación, y seguir con la ola 3 (05, 06). El plan 09 debe listar este riesgo residual."
+stopped_at: "Auditoría de 0.1 hecha (SECURED, threats_open: 0). Siguiente: verificación de la fase 0.1.1 y luego /clear + /gsd:discuss-phase de la fase 0.2."
 last_updated: "2026-11-28T15:38:15.419Z"
 last_activity: 2026-11-28
 progress:
@@ -49,11 +49,11 @@ Hito: H0 Arranque y descubrimiento · Fase en curso: 0.1 Arranque técnico · Es
 
 ## Última verificación en dev
 
-2026-11-27, fase 0.1: dev (`d9ee67c`) y prod (`d98a6f5`) verificados; evidencia en `.planning/phases/00.1-arranque-t-cnico/verificacion.md`.
+2026-11-28, fase 0.1.1: dev (`a00c0d2`, despliegue https://github.com/gerentelucglogistics-ctrl/LUCG/actions/runs/46178560081) y prod (`8e0b133`, despliegue https://github.com/gerentelucglogistics-ctrl/LUCG/actions/runs/46180939332, una aprobación de jaras97) verificados; evidencia en `.planning/phases/00.1.1-endurecimiento-de-seguridad/verificacion.md`.
 
 ## Próximo paso
 
-Cerrar 0.1 con las puertas de GSD (code review y verificador) y luego `/clear` y `/gsd:discuss-phase` de la fase 0.2. Backlog: Schemathesis en e2e-dev, Railway a `.railway/railway.ts`.
+Auditoría de 0.1 hecha (2026-11-28, `threats_open: 0`, 48/48 cerradas). Siguiente: verificación de la fase 0.1.1; luego `/clear` y `/gsd:discuss-phase` de la fase 0.2. Backlog: Schemathesis en e2e-dev, Railway a `.railway/railway.ts`; menores de /code-review (secretos de menos de 8 caracteres en la compuerta; `migrate.yml` con entorno=prod invisible a la auditoría; un alias de rama puede servir otro commit); automatizar el PR dev→main.
 
 <!-- Campos agregados al adoptar GSD (2026-11-26). Las herramientas de GSD leen y escriben estos campos; lo de arriba
      sigue siendo el resumen para personas. -->
