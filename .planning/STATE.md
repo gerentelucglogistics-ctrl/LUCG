@@ -6,7 +6,7 @@ current_phase: 00.1.1
 current_phase_name: endurecimiento-de-seguridad
 current_plan: 1
 status: executing
-stopped_at: "Fase 0.1.1 en el plan 12: planes 10 y 11 hechos (dev a00c0d2, prod 8e0b133). Falta la auditoría /gsd:secure-phase 0.1 desde la sesión principal y el PR de evidencia a dev."
+stopped_at: "Auditoría de 0.1 hecha (SECURED, threats_open: 0). Siguiente: verificación de la fase 0.1.1 y luego /clear + /gsd:discuss-phase de la fase 0.2."
 last_updated: "2026-11-28T15:38:15.419Z"
 last_activity: 2026-11-28
 progress:
@@ -53,7 +53,7 @@ Hito: H0 Arranque y descubrimiento · Fase en curso: 0.1 Arranque técnico · Es
 
 ## Próximo paso
 
-Plan 12 de 0.1.1: auditoría `/gsd:secure-phase 0.1` y PR de evidencia hacia dev; luego `/clear` y `/gsd:discuss-phase` de la fase 0.2. Backlog: Schemathesis en e2e-dev, Railway a `.railway/railway.ts`.
+Auditoría de 0.1 hecha (2026-11-28, `threats_open: 0`, 48/48 cerradas). Siguiente: verificación de la fase 0.1.1; luego `/clear` y `/gsd:discuss-phase` de la fase 0.2. Backlog: Schemathesis en e2e-dev, Railway a `.railway/railway.ts`; menores de /code-review (secretos de menos de 8 caracteres en la compuerta; `migrate.yml` con entorno=prod invisible a la auditoría; un alias de rama puede servir otro commit); automatizar el PR dev→main.
 
 <!-- Campos agregados al adoptar GSD (2026-11-26). Las herramientas de GSD leen y escriben estos campos; lo de arriba
      sigue siendo el resumen para personas. -->

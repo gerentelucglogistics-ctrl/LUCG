@@ -42,3 +42,9 @@ La comprobación `dev: sin strict` con token admin dio OK el 2026-11-28 (00.1.1-
 | Criterio 3: una sola aprobación de jaras97 en deploy-prod | Run https://github.com/gerentelucglogistics-ctrl/LUCG/actions/runs/46180939332: `conclusion` = `success`, jobs `desplegar` = success. `approvals` = `[{"user":"jaras97","state":"approved","envs":["prod"]}]` (length 1) |
 | Registro público cerrado en prod (D-19; T-0.1-36/24/45) | Run https://github.com/gerentelucglogistics-ctrl/LUCG/actions/runs/46180939332, log: `Registro público cerrado en prod (disable_signup=true, signup_disabled)`. Artefactos del run: `[]` |
 | Prod health | `https://api.lucglogistics.com/api/v1/health` = `{"version":"8e0b133","db":true}` (2026-11-28) |
+
+## Auditoría de 0.1
+
+| Criterio | Evidencia |
+|----------|-----------|
+| Criterio 1: `/gsd:secure-phase 0.1` → `threats_open: 0` | 2026-11-28, `gsd-security-auditor` (ASVS 1), veredicto SECURED: 48 amenazas, 48 cerradas, 0 abiertas. Ver `.planning/phases/00.1-arranque-t-cnico/00.1-SECURITY.md`. |
