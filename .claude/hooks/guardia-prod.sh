@@ -21,7 +21,7 @@ escritura_gh() {
 # curl/wget/http/xh contra api.github.com o uploads.github.com con cuerpo o método de escritura.
 escritura_http() {
   re "${D}(curl|wget|http|xh)[[:space:]]" || return 1
-  re '(api|uploads)\.github\.com' || return 1
+  re 'api\.github\.com|uploads\.github\.com' || return 1
   re '[[:space:]](-X[[:space:]]*(POST|PUT|PATCH|DELETE)|--request|--method|-d|--data[a-z-]*|-F|--form|--json|-T|--upload-file|--post-data|--post-file)([[:space:]=]|$)'
 }
 
