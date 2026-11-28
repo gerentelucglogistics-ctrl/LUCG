@@ -9,6 +9,9 @@ TITULO="${1:-$(git branch --show-current)}"
 RAMA=$(git branch --show-current)
 case "$RAMA" in main|dev) echo "Estás en ${RAMA}; crea una rama fase/<fase>-<slug>"; exit 1;; esac
 [ -z "$(git status --porcelain)" ] || { echo "Hay cambios sin commit"; exit 1; }
+# fusionar-dev.sh solo fusiona PRs del bot: fallar antes del push si gh no es el bot.
+source "$(dirname "${BASH_SOURCE[0]}")/github-config.sh"
+[ "$(gh api user --jq .login)" = "$LUCG_BOT" ] || { echo "gh no está con la cuenta ${LUCG_BOT}; cierre-fase solo corre como el bot"; exit 1; }
 
 echo "== 1/4 Push de ${RAMA}"
 git push -u origin "$RAMA"

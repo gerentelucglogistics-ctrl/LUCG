@@ -12,11 +12,17 @@ re() { printf '%s' "$cmd" | grep -Eqi -- "$1"; }
 D='(^|[;&|[:space:]'"'"'"(`/])'
 
 # gh api de escritura: método explícito distinto de GET, o campos/entrada (-f -F --field --raw-field --input) que fuerzan POST.
+# Se decide por segmento (; & | ( `): un -X GET en una llamada no exime a otra llamada del mismo comando.
 escritura_gh() {
   re "${D}gh[[:space:]]+api[[:space:]]" || return 1
-  re '(-X|--method)[[:space:]=]*GET([[:space:]]|$)' && return 1
-  re '(-X|--method)[[:space:]=]*(POST|PUT|PATCH|DELETE)' && return 0
-  re '[[:space:]](-f|-F|--field|--raw-field|--input)([[:space:]=]|[^[:space:]-])'
+  local seg
+  while IFS= read -r seg; do
+    printf '%s' "$seg" | grep -Eqi -- "${D}gh[[:space:]]+api[[:space:]]" || continue
+    printf '%s' "$seg" | grep -Eqi -- '(-X|--method)[[:space:]=]*(POST|PUT|PATCH|DELETE)' && return 0
+    printf '%s' "$seg" | grep -Eqi -- '(-X|--method)[[:space:]=]*GET([[:space:]]|$)' && continue
+    printf '%s' "$seg" | grep -Eqi -- '[[:space:]](-f|-F|--field|--raw-field|--input)([[:space:]=]|[^[:space:]-])' && return 0
+  done < <(printf '%s\n' "$cmd" | tr ';&|(`' '\n\n\n\n\n')
+  return 1
 }
 # curl/wget/http/xh contra api.github.com o uploads.github.com con cuerpo o método de escritura.
 escritura_http() {
@@ -26,7 +32,7 @@ escritura_http() {
 }
 
 # Rutas de GitHub que nunca se escriben desde el agente: fusión, despliegues, main, refs, contenido, entornos prod y administración.
-RUTAS='pulls/[0-9]+/merge|actions/runs/[0-9]+/(pending_deployments|rerun|rerun-failed-jobs|deployment_protection_rule)|actions/workflows/(deploy-prod|migrate)[^/[:space:]]*/dispatches|branches/main|git/refs|/merges|/contents/|environments/(prod|Production)|/rulesets|/collaborators|repos/[^/[:space:]]+/[^/[:space:]"'"'"']+([[:space:]"'"'"']|$)'
+RUTAS='pulls/[0-9]+/(merge|reviews)|actions/runs/[0-9]+/(pending_deployments|rerun|rerun-failed-jobs|deployment_protection_rule)|actions/workflows/(deploy-prod|migrate)[^/[:space:]]*/dispatches|branches/main|git/refs|/merges|/contents/|environments/(prod|Production)|/rulesets|/collaborators|repos/[^/[:space:]]+/[^/[:space:]"'"'"']+([[:space:]"'"'"']|$)'
 if { escritura_gh || escritura_http; } && re "$RUTAS"; then
   bloquear "escritura en GitHub sobre main, prod o la administración del repo"
 fi
@@ -58,11 +64,12 @@ re "${D}security[[:space:]]+dump-keychain" && bloquear "leer credenciales de gh 
 
 # git push: forzado, hacia main, masivo, borrado de main/dev y push directo a dev.
 re "${D}git[[:space:]]+push([[:space:]]+[^;&|]*)?[[:space:]](--force|-f|--force-with-lease)([[:space:]]|$)" && bloquear "git push forzado"
+re "${D}git[[:space:]]+push([[:space:]]+[^;&|]*)?[[:space:]]\+[^[:space:]]" && bloquear "git push forzado (refspec con +)"
 re "${D}git[[:space:]]+push([[:space:]]+[^;&|]*)?[[:space:]:/+]main([[:space:]]|$)" && bloquear "push a main"
 re "${D}git[[:space:]]+push([[:space:]]+[^;&|]*)?[[:space:]](--all|--mirror)([[:space:]]|$)" && bloquear "push masivo"
 re "${D}git[[:space:]]+push[^;&|]*(--delete|-d)[^;&|]*(main|dev)([[:space:]]|$)" && bloquear "borrar main o dev"
 re "${D}git[[:space:]]+push([[:space:]]+[^;&|]*)?[[:space:]]:(main|dev)([[:space:]]|$)" && bloquear "borrar main o dev"
-re "${D}git[[:space:]]+push([[:space:]]+[^;&|]*)?[[:space:]:]dev([[:space:]]|$)" && bloquear "push directo a dev (solo por PR con cierre-fase)"
+re "${D}git[[:space:]]+push([[:space:]]+[^;&|]*)?[[:space:]:/+]dev([[:space:]]|$)" && bloquear "push directo a dev (solo por PR con cierre-fase)"
 
 # Infraestructura contra prod o bases remotas.
 re "${D}(vercel|railway|fly|flyctl|supabase)[[:space:]][^;&|]*(--prod([[:space:]]|$)|--environment[[:space:]=]+prod|production|produccion)" && bloquear "comando de infraestructura contra prod"

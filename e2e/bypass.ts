@@ -15,7 +15,9 @@ export async function cookiesDeBypass(baseURL: string, secreto: string) {
   try {
     await rc.get("/");
     const { cookies } = await rc.storageState();
-    if (cookies.length === 0) throw new Error("Vercel no devolvió la cookie de bypass");
+    // Sin cookie: el despliegue no está protegido (p. ej. un dominio propio). Si sí lo está,
+    // la prueba falla después en la página de login de Vercel, con un error visible.
+    if (cookies.length === 0) console.warn("Vercel no devolvió cookie de bypass; se sigue sin ella");
     return cookies;
   } finally {
     await rc.dispose();
