@@ -28,6 +28,7 @@ Hito: H0 Arranque y descubrimiento · Fase en curso: 0.1 Arranque técnico · Es
 - Stack fijado (ver CLAUDE.md). ADR-1..8 en docs/adr.
 - Un solo repo: el del sitio público, convertido en monorepo; el sitio vive en `apps/site` (ADR-007).
 - Ambientes: `dev` (rama `dev`, automático) y `prod` (rama `main`, PR fusionado a mano) (ADR-008).
+- ADR-009 (enmienda ADR-008): el bot `lucglogisticsbot` fusiona a dev solo con `scripts/fusionar-dev.sh`; prod con una sola aprobación de jaras97 en el entorno `prod`. Las credenciales de jaras97 siguen en la máquina (riesgo aceptado AR-09, R7).
 - GSD: modo yolo, perfil balanced con Opus para decidir/analizar y Sonnet para ejecutar (`.planning/config.json`).
 - Identidad visual única en `packages/ui/src/tokens.css`; el sitio público se ajusta a ella.
 - IMILE: conciliación por archivos; repartidores siguen en la app de IMILE para esos paquetes.
@@ -36,7 +37,8 @@ Hito: H0 Arranque y descubrimiento · Fase en curso: 0.1 Arranque técnico · Es
 
 ## Bloqueos y pendientes externos
 
-- GitHub: no se pudo crear la organización de LUCG (2026-11-27). El repo sigue en `gerentelucglogistics-ctrl/LUCG`; esa cuenta hace los ajustes de admin. Transferir cuando exista la organización (D-19 enmendada).
+- GitHub: no se pudo crear la organización de LUCG (2026-11-27). El repo sigue en `gerentelucglogistics-ctrl/LUCG`; esa cuenta hace los ajustes de admin. Transferir cuando exista la organización (D-19 enmendada). Revisar el 2027-02-28 (AR-08).
+- Token classic del bot vence el 2027-02-26: lo renueva el desarrollador (`gh auth login` en el GH_CONFIG_DIR del bot desde su terminal).
 - IMILE: ¿exportaciones de salida a ruta, fallidos y devoluciones? ¿correo automático o API?
 - Contrato IMILE: fórmula de multas y valor por perdido.
 - Lista de 18 repartidores con nombre exacto en IMILE y tarifa.
@@ -51,7 +53,7 @@ Hito: H0 Arranque y descubrimiento · Fase en curso: 0.1 Arranque técnico · Es
 
 ## Próximo paso
 
-Cerrar 0.1 con las puertas de GSD (code review y verificador) y luego `/clear` y `/gsd:discuss-phase` de la fase 0.2. Backlog: una sola aprobación en deploy-prod, Schemathesis en e2e-dev, Railway a `.railway/railway.ts`.
+Cerrar 0.1 con las puertas de GSD (code review y verificador) y luego `/clear` y `/gsd:discuss-phase` de la fase 0.2. Backlog: Schemathesis en e2e-dev, Railway a `.railway/railway.ts`.
 
 <!-- Campos agregados al adoptar GSD (2026-11-26). Las herramientas de GSD leen y escriben estos campos; lo de arriba
      sigue siendo el resumen para personas. -->

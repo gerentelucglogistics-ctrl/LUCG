@@ -32,7 +32,7 @@ Rellenar con enlaces y salidas reales. Una fila sin evidencia no cuenta como ver
 | Run de despliegue a dev | https://github.com/gerentelucglogistics-ctrl/LUCG/actions/runs/46056594931: success en `migraciones / migrar`, `api`, `apps`, `sembrar-e2e`, `sentry`, `e2e / verificar` |
 | `supabase migration list --remote` (dev) | `Target: project lucg-dev (mrmmnotufnenuanapdng)`; Local = Remote: `20261105000000` (0001) y `20261126225903` (0002) |
 | Health de `api-dev` | `{"status":"ok","db":true,"rol_db":"lucg_api","version":"d20ad04","env":"dev"}` (version = SHA corto de la fusión) |
-| e2e contra dev | 6 passed (8.6 s): smoke (consola + versión), login admin + contexto, credenciales malas, worker ping, 401 sin token, PWA sin conexión (manifest instalable). Artefacto `playwright-dev` del run de despliegue. |
+| e2e contra dev | 6 passed (8.6 s): smoke (consola + versión), login admin + contexto, credenciales malas, worker ping, 401 sin token, PWA sin conexión (manifest instalable). Run de despliegue a dev: https://github.com/gerentelucglogistics-ctrl/LUCG/actions/runs/46056594931 (log del run; D-12). |
 | Salud diaria | https://github.com/gerentelucglogistics-ctrl/LUCG/actions/runs/46057054083 (workflow_dispatch desde `dev`): pata dev success; pata prod failure esperado (prod sin desplegar hasta el plan 12) |
 
 ## Criterios en dev
