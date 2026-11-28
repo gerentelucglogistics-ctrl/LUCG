@@ -16,11 +16,18 @@ export default defineConfig({
       animations: "disabled",
     },
   },
-  use: { trace: "retain-on-failure", screenshot: "only-on-failure", locale: "es-CO", timezoneId: "America/Bogota" },
+  use: { trace: "off", video: "off", screenshot: "only-on-failure", locale: "es-CO", timezoneId: "America/Bogota" },
   projects: [
     {
+      name: "setup",
+      testMatch: /auth\.setup\.ts/,
+      use: { baseURL: web },
+      metadata: { bypassEnv: "VERCEL_BYPASS_WEB" },
+    },
+    {
       name: "local",
-      testMatch: [/smoke/, /login/, /worker/],
+      dependencies: ["setup"],
+      testMatch: [/smoke/, /login/, /worker/, /consola-sesion/],
       use: { ...devices["Desktop Chrome"], baseURL: web },
       metadata: { driver },
     },
@@ -31,13 +38,15 @@ export default defineConfig({
     },
     {
       name: "preview",
-      testMatch: [/smoke/, /login/],
+      dependencies: ["setup"],
+      testMatch: [/smoke/, /login/, /consola-sesion/],
       use: { ...devices["Desktop Chrome"], baseURL: web },
       metadata: { bypassEnv: "VERCEL_BYPASS_WEB" },
     },
     {
       name: "dev",
-      testMatch: [/smoke/, /login/, /worker/],
+      dependencies: ["setup"],
+      testMatch: [/smoke/, /login/, /worker/, /consola-sesion/],
       use: { ...devices["Desktop Chrome"], baseURL: web },
       metadata: { bypassEnv: "VERCEL_BYPASS_WEB" },
     },

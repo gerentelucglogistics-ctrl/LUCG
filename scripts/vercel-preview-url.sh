@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 # Respaldo (A10) para obtener la URL del preview de un proyecto de Vercel por SHA de commit.
-# Uso: VERCEL_TOKEN=... [VERCEL_TEAM_ID=...] ./scripts/vercel-preview-url.sh <projectId> <sha>
+# Uso: VERCEL_TOKEN=... [VERCEL_TEAM_ID=...] ./scripts/vercel-preview-url.sh <projectId> <sha> [alias]
+# Con "alias" (consola web) espera el alias de rama en vez de devolver el host único: api-dev solo
+# acepta por CORS_ORIGIN_REGEX los alias lucg-(web|driver)-git-<rama>-lucg.vercel.app.
 # Escribe url=https://<host> en $GITHUB_OUTPUT (si existe) y lo imprime.
 set -euo pipefail
 PROYECTO="${1:?uso: vercel-preview-url.sh <projectId> <sha>}"
 SHA="${2:?uso: vercel-preview-url.sh <projectId> <sha>}"
+REQUIERE_ALIAS="${3:-}"
 : "${VERCEL_TOKEN:?VERCEL_TOKEN requerido}"
 
 EQUIPO=""
@@ -16,6 +19,18 @@ for _ in $(seq 1 60); do
   if [ -n "$resp" ]; then
     host=$(echo "$resp" | jq -r --arg sha "$SHA" \
       '[.deployments[]? | select(.meta.githubCommitSha == $sha) | select((.readyState // .state) == "READY")][0].url // empty')
+    # El host único (lucg-<hash>-lucg.vercel.app) no cumple CORS_ORIGIN_REGEX de api-dev;
+    # el alias de rama (lucg-web-git-<rama>-lucg.vercel.app) sí, así que se prefiere si ya existe.
+    if [ -n "$host" ]; then
+      alias_rama=$(curl -sf --max-time 30 -H "Authorization: Bearer ${VERCEL_TOKEN}" \
+        "https://api.vercel.com/v13/deployments/${host}?${EQUIPO#&}" 2>/dev/null \
+        | jq -r '[.alias[]? | select(test("-git-"))][0] // empty' || true)
+      if [ -n "$alias_rama" ]; then
+        host="$alias_rama"
+      elif [ "$REQUIERE_ALIAS" = alias ]; then
+        host=""  # el alias se asigna después de READY: seguir esperando
+      fi
+    fi
     if [ -n "$host" ]; then
       echo "url=https://${host}" | tee -a "${GITHUB_OUTPUT:-/dev/null}"
       exit 0

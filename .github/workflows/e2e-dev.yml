@@ -19,6 +19,7 @@ jobs:
       VERCEL_BYPASS_SITE: ${{ secrets.VERCEL_BYPASS_SITE }}
       E2E_USER_ADMIN: ${{ secrets.E2E_USER_ADMIN }}
       E2E_PASS_ADMIN: ${{ secrets.E2E_PASS_ADMIN }}
+      E2E_TOKEN_ADMIN: ${{ secrets.E2E_TOKEN_ADMIN }}
       E2E_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
       E2E_SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
     steps:
@@ -32,15 +33,23 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium
       - name: Playwright (dev)
         run: pnpm e2e:dev
+      - name: Compuerta de secretos
+        id: compuerta
+        if: failure()
+        run: python3 -I scripts/compuerta-secretos.py playwright-report
       - uses: actions/upload-artifact@v7
-        if: always()
-        with: { name: playwright-dev, path: playwright-report, if-no-files-found: ignore }
+        if: failure() && steps.compuerta.outcome == 'success'
+        with:
+          name: playwright-dev
+          path: playwright-report
+          if-no-files-found: ignore
+          retention-days: 7
       - uses: astral-sh/setup-uv@v10.4.0
       - name: Contrato de API (Schemathesis)
         run: |
           uvx schemathesis run "$BASE_URL_API/openapi.json" --checks all --hypothesis-max-examples=30 \
-            --header "Authorization: Bearer ${{ secrets.E2E_TOKEN_ADMIN }}" || true
+            --header "Authorization: Bearer ${E2E_TOKEN_ADMIN}" || true
       - name: Resumen
         if: always()
         run: |
-          echo "Evidencia: artefacto playwright-dev de esta ejecución; release Sentry ${GITHUB_SHA}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Evidencia: run ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} (log); release Sentry ${GITHUB_SHA}" >> "$GITHUB_STEP_SUMMARY"

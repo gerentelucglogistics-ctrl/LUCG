@@ -30,7 +30,7 @@ Glosario y reglas de dominio: skill `lucg-dominio` y `docs/glosario.md`. Nunca i
 6. Evidencias (fotos, firmas, archivos IMILE) van a Storage privado y se sirven con URLs firmadas.
 7. Fechas: se guardan en UTC, se muestran en America/Bogota, se conserva también la hora del dispositivo.
 8. Catálogos con códigos estables; descripciones editables.
-9. No se toca prod ni `main` desde una sesión de agente. El MCP de Supabase apunta solo a dev.
+9. No se fusiona, aprueba ni administra prod ni `main` desde una sesión de agente. El agente (bot) fusiona a `dev` solo con `scripts/fusionar-dev.sh`. El MCP de Supabase apunta solo a dev.
 
 ## Proceso (GSD estricto)
 - No escribas código sin fase planeada en `.planning/phases/<fase>/PLAN.md` y tarea asignada.
@@ -59,9 +59,14 @@ El trabajo se hace con `defaultMode: bypassPermissions` (o `claude --dangerously
 por lecturas, escrituras, pruebas, migraciones locales, push ni PR. Límites que sí se respetan (deny en `.claude/settings.json`
 + hook `.claude/hooks/guardia-prod.sh`): nada contra prod, nada de push ni PR hacia `main`, nada de `gh pr merge` a mano,
 nada de `git push --force`, nada de leer `.env`.
+- Identidad: la sesión usa al bot (`.claude/settings.local.json`); los commits llevan al bot como autor y
+  `Co-Authored-By: jaras97 <169089679+jaras97@users.noreply.github.com>`. Están bloqueados (deny + hook) `gh pr merge` crudo,
+  `gh api` de escritura sobre main/prod, `gh secret`/`gh variable` de prod, `gh auth token/switch/login` y `gh pr review --approve`.
+  La renovación del token del bot es humana.
 
-## Ambientes y ramas (ADR-008)
-- `fase/...` → PR → `dev` → ambiente **dev** (automático). `dev` → PR → `main` → ambiente **prod** (solo el desarrollador principal, a mano).
+## Ambientes y ramas (ADR-008, ADR-009)
+- `fase/...` → PR del bot → `scripts/fusionar-dev.sh` → `dev` → ambiente **dev** (automático).
+- `dev` → PR → `main`, fusionado por la cuenta LUCG → `deploy-prod.yml` con una sola aprobación de jaras97 en el entorno `prod`.
 - Trabaja siempre en rama `fase/...`; el peor caso de un error del agente es un PR que CI rechaza o un dev roto.
 
 ## Qué no hacer
