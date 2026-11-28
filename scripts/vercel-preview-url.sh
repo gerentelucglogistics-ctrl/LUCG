@@ -16,6 +16,14 @@ for _ in $(seq 1 60); do
   if [ -n "$resp" ]; then
     host=$(echo "$resp" | jq -r --arg sha "$SHA" \
       '[.deployments[]? | select(.meta.githubCommitSha == $sha) | select((.readyState // .state) == "READY")][0].url // empty')
+    # El host único (lucg-<hash>-lucg.vercel.app) no cumple CORS_ORIGIN_REGEX de api-dev;
+    # el alias de rama (lucg-web-git-<rama>-lucg.vercel.app) sí, así que se prefiere si ya existe.
+    if [ -n "$host" ]; then
+      alias_rama=$(curl -sf --max-time 30 -H "Authorization: Bearer ${VERCEL_TOKEN}" \
+        "https://api.vercel.com/v13/deployments/${host}?${EQUIPO#&}" 2>/dev/null \
+        | jq -r '[.alias[]? | select(test("-git-"))][0] // empty' || true)
+      [ -n "$alias_rama" ] && host="$alias_rama"
+    fi
     if [ -n "$host" ]; then
       echo "url=https://${host}" | tee -a "${GITHUB_OUTPUT:-/dev/null}"
       exit 0
