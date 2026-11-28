@@ -129,7 +129,7 @@ Plans:
 - [x] 00.1.1-03-PLAN.md — Playwright sin secretos: trace/video off, bypass por cookie, login por API con storageState
 - [x] 00.1.1-04-PLAN.md — Compuerta de secretos (zip base64 recursivo) con regresión sobre un reporte real
 - [ ] 00.1.1-05-PLAN.md — Compuerta y subida solo en fallo en CI; URL del run como evidencia; e2e-preview en verde
-- [ ] 00.1.1-06-PLAN.md — Guardia ampliada (gh api, secret/variable de prod, GraphQL, curl, git push) con prueba de regresión
+- [x] 00.1.1-06-PLAN.md — Guardia ampliada (gh api, secret/variable de prod, GraphQL, curl, git push) con prueba de regresión
 - [ ] 00.1.1-07-PLAN.md — fusionar-dev.sh, cierre-fase con fusión del bot, job guardia requerido en dev
 - [x] 00.1.1-08-PLAN.md — deploy-prod con un solo job en prod (acción compuesta de migración) y humo con registro cerrado
 - [ ] 00.1.1-09-PLAN.md — ADR-009, CLAUDE.md, memoria; 00.1-SECURITY.md con C-1/C-2/C-4 cerradas, AR-08 y R1-R6
