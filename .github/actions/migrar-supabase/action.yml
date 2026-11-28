@@ -1,0 +1,25 @@
+name: Migrar Supabase
+description: >-
+  Aplica migraciones a la base alojada del entorno del job (D-16).
+  Requiere en env: SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD, REF y SUPABASE_ENV.
+runs:
+  using: composite
+  steps:
+    - name: Verificar proyecto de Supabase
+      shell: bash
+      run: |
+        if [ -z "$REF" ]; then
+          echo "::error::SUPABASE_PROJECT_REF está vacía en el entorno ${SUPABASE_ENV}; no se migra"
+          exit 1
+        fi
+    - uses: supabase/setup-cli@v3
+      with: { version: 3.4.0 }
+    - name: Enlazar proyecto
+      shell: bash
+      run: supabase link --project-ref "$REF"
+    - name: Aplicar migraciones
+      shell: bash
+      run: supabase db push --yes --remote
+    - name: Estado de migraciones
+      shell: bash
+      run: supabase migration list --remote

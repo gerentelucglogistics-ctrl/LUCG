@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Humo contra un entorno: ./scripts/smoke.sh dev|prod
 # Lee BASE_URL_API, BASE_URL_WEB, BASE_URL_DRIVER (y BASE_URL_SITE si existe) del entorno o de .env.<entorno>.
+# Lee también SUPABASE_URL y SUPABASE_PUBLISHABLE_KEY (o E2E_SUPABASE_* en dev) para el chequeo de registro cerrado.
 # La cabecera de bypass de Vercel solo se manda a dominios de Vercel, nunca a la API.
 set -euo pipefail
 ENTORNO="${1:-dev}"
@@ -40,4 +41,5 @@ verificar Driver "$BASE_URL_DRIVER" VERCEL_BYPASS_DRIVER
 code=$(curl_vercel VERCEL_BYPASS_DRIVER -s -o /dev/null -w '%{http_code}' "${BASE_URL_DRIVER}/manifest.webmanifest")
 [ "$code" = "200" ] || { echo "PWA: el manifiesto no responde 200 (${code})"; exit 1; }
 echo "PWA: manifiesto presente"
+"$(dirname "$0")/registro-cerrado.sh" "${ENTORNO}"
 echo "== Humo OK =="

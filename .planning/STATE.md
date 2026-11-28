@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 00.1
-current_phase_name: Arranque técnico
+current_phase: 00.1.1
+current_phase_name: endurecimiento-de-seguridad
 current_plan: 1
 status: executing
-stopped_at: Phase 0.1 context gathered
-last_updated: "2026-11-26T22:57:14.115Z"
-last_activity: 2026-11-26
+stopped_at: "00.1.1-02 tareas 1-2 hechas (1300c97). Task 3 enmendada: el desarrollador eligió NO cerrar las credenciales de jaras97 (opción 2, riesgo aceptado en ADR-009); solo reinicia Claude Code. Al volver: verificar gh auth status / gh api user / git var GIT_AUTHOR_IDENT = bot, escribir 00.1.1-02-SUMMARY.md con la desviación, y seguir con la ola 3 (05, 06). El plan 09 debe listar este riesgo residual."
+last_updated: "2026-11-28T15:38:15.419Z"
+last_activity: 2026-11-28
 progress:
-  total_phases: 35
-  completed_phases: 0
-  total_plans: 12
-  completed_plans: 0
-  percent: 0
+  total_phases: 36
+  completed_phases: 1
+  total_plans: 24
+  completed_plans: 15
+  percent: 3
 ---
 
 # STATE.md — leer al inicio de cada sesión
@@ -28,6 +28,7 @@ Hito: H0 Arranque y descubrimiento · Fase en curso: 0.1 Arranque técnico · Es
 - Stack fijado (ver CLAUDE.md). ADR-1..8 en docs/adr.
 - Un solo repo: el del sitio público, convertido en monorepo; el sitio vive en `apps/site` (ADR-007).
 - Ambientes: `dev` (rama `dev`, automático) y `prod` (rama `main`, PR fusionado a mano) (ADR-008).
+- ADR-009 (enmienda ADR-008): el bot `lucglogisticsbot` fusiona a dev solo con `scripts/fusionar-dev.sh`; prod con una sola aprobación de jaras97 en el entorno `prod`. Las credenciales de jaras97 siguen en la máquina (riesgo aceptado AR-09, R7).
 - GSD: modo yolo, perfil balanced con Opus para decidir/analizar y Sonnet para ejecutar (`.planning/config.json`).
 - Identidad visual única en `packages/ui/src/tokens.css`; el sitio público se ajusta a ella.
 - IMILE: conciliación por archivos; repartidores siguen en la app de IMILE para esos paquetes.
@@ -36,7 +37,8 @@ Hito: H0 Arranque y descubrimiento · Fase en curso: 0.1 Arranque técnico · Es
 
 ## Bloqueos y pendientes externos
 
-- GitHub: no se pudo crear la organización de LUCG (2026-11-27). El repo sigue en `gerentelucglogistics-ctrl/LUCG`; esa cuenta hace los ajustes de admin. Transferir cuando exista la organización (D-19 enmendada).
+- GitHub: no se pudo crear la organización de LUCG (2026-11-27). El repo sigue en `gerentelucglogistics-ctrl/LUCG`; esa cuenta hace los ajustes de admin. Transferir cuando exista la organización (D-19 enmendada). Revisar el 2027-02-28 (AR-08).
+- Token classic del bot vence el 2027-02-26: lo renueva el desarrollador (`gh auth login` en el GH_CONFIG_DIR del bot desde su terminal).
 - IMILE: ¿exportaciones de salida a ruta, fallidos y devoluciones? ¿correo automático o API?
 - Contrato IMILE: fórmula de multas y valor por perdido.
 - Lista de 18 repartidores con nombre exacto en IMILE y tarifa.
@@ -51,7 +53,7 @@ Hito: H0 Arranque y descubrimiento · Fase en curso: 0.1 Arranque técnico · Es
 
 ## Próximo paso
 
-Cerrar 0.1 con las puertas de GSD (code review y verificador) y luego `/clear` y `/gsd:discuss-phase` de la fase 0.2. Backlog: una sola aprobación en deploy-prod, Schemathesis en e2e-dev, Railway a `.railway/railway.ts`.
+Cerrar 0.1 con las puertas de GSD (code review y verificador) y luego `/clear` y `/gsd:discuss-phase` de la fase 0.2. Backlog: Schemathesis en e2e-dev, Railway a `.railway/railway.ts`.
 
 <!-- Campos agregados al adoptar GSD (2026-11-26). Las herramientas de GSD leen y escriben estos campos; lo de arriba
      sigue siendo el resumen para personas. -->
@@ -61,24 +63,24 @@ Cerrar 0.1 con las puertas de GSD (code review y verificador) y luego `/clear` y
 See: .planning/PROJECT.md (updated 2026-11-26)
 
 **Core value:** Nadie en LUCG necesita el chat ni el sistema del aliado para saber dónde está un bulto, quién lo tiene y qué pasó.
-**Current focus:** Phase 00.1 — Arranque técnico
+**Current focus:** Phase 00.1.1 — endurecimiento-de-seguridad
 
 ## Current Position
 
-Phase: 00.1 (Arranque técnico) — EXECUTING
+Phase: 00.1.1 (endurecimiento-de-seguridad) — EXECUTING
 Plan: 1 of 12
-**Current Phase:** 00.1
-**Current Phase Name:** Arranque técnico
+**Current Phase:** 00.1.1
+**Current Phase Name:** endurecimiento-de-seguridad
 **Current Plan:** 1
 **Total Plans in Phase:** 12
-**Status:** Executing Phase 00.1
-**Last Activity:** 2026-11-26
-**Last Activity Description:** Phase 00.1 execution started
+**Status:** Executing Phase 00.1.1
+**Last Activity:** 2026-11-28
+**Last Activity Description:** Phase 00.1.1 execution started
 
 Progress: [░░░░░░░░░░] 0% (0 de 34 fases verificadas en dev)
 
 ## Session Continuity
 
-**Last session:** 2026-11-26T19:09:10.138Z
-**Stopped at:** Phase 0.1 context gathered
-**Resume File:** .planning/phases/00.1-arranque-t-cnico/00.1-CONTEXT.md
+**Last session:** 2026-11-28T10:40:21.298Z
+**Stopped at:** Phase 0.1.1 context gathered
+**Resume File:** .planning/phases/00.1.1-endurecimiento-de-seguridad/00.1.1-CONTEXT.md

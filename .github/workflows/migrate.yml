@@ -23,17 +23,4 @@ jobs:
       REF: ${{ vars.SUPABASE_PROJECT_REF }}
     steps:
       - uses: actions/checkout@v7
-      - name: Verificar proyecto de Supabase
-        run: |
-          if [ -z "$REF" ]; then
-            echo "::error::SUPABASE_PROJECT_REF está vacía en el entorno ${SUPABASE_ENV}; no se migra"
-            exit 1
-          fi
-      - uses: supabase/setup-cli@v3
-        with: { version: 3.4.0 }
-      - name: Enlazar proyecto
-        run: supabase link --project-ref "$REF"
-      - name: Aplicar migraciones
-        run: supabase db push --yes --remote
-      - name: Estado de migraciones
-        run: supabase migration list --remote
+      - uses: ./.github/actions/migrar-supabase

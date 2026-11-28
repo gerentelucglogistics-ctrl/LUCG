@@ -23,6 +23,7 @@ supabase/.branches/
 test-results/
 playwright-report/
 blob-report/
+playwright/.auth/
 # GSD
 .planning/**/scratch/
 # SO y editores

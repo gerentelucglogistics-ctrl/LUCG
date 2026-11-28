@@ -54,6 +54,22 @@ gen-client:
 smoke entorno:
 	./scripts/smoke.sh {{entorno}}
 
-# Cierre de fase: push, PR a dev, CI, merge, despliegue a dev y pruebas contra dev
+# Cierre de fase: push, PR a dev, fusión con fusionar-dev.sh, despliegue a dev y pruebas contra dev
 cierre-fase:
 	./scripts/cierre-fase.sh
+
+# Fusiona en dev un PR del bot con los checks de D-14: just fusionar-dev 12
+fusionar-dev pr:
+	./scripts/fusionar-dev.sh {{pr}}
+
+# Pruebas de scripts (guardia, compuerta, fusionar-dev, registro, artefactos)
+test-scripts:
+	bash scripts/tests/guardia.test.sh
+	bash scripts/tests/compuerta.test.sh
+	bash scripts/tests/fusionar-dev.test.sh
+	bash scripts/tests/registro-cerrado.test.sh
+	bash scripts/tests/artefactos.test.sh
+
+# Auditoría de solo lectura de GitHub (entornos, bot, dev, main)
+auditar-github:
+	./scripts/auditar-github.sh
