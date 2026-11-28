@@ -38,5 +38,6 @@ La comprobación `dev: sin strict` con token admin dio OK el 2026-11-28 (00.1.1-
 
 | Criterio | Evidencia |
 |----------|-----------|
+| Criterio 2 prod: el bot no puede aprobar | Run https://github.com/gerentelucglogistics-ctrl/LUCG/actions/runs/46180939332 (PR dev→main https://github.com/gerentelucglogistics-ctrl/LUCG/pull/12, mergedBy = `gerentelucglogistics-ctrl`, commit `8e0b133`). Lecturas como bot: `[.status,.headBranch,.event]` = `["waiting","main","push"]`; jobs = `["desplegar"]`; `pending_deployments` = `[{"env":"prod","puede":false,"revisores":["jaras97"]}]` (`current_user_can_approve` = false) |
 | Criterio 3: una sola aprobación de jaras97 en deploy-prod | pendiente del run aprobado (plan 11) |
 | Registro público cerrado en prod (D-19) | pendiente del run aprobado (plan 11) |
