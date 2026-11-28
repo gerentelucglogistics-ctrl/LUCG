@@ -128,7 +128,7 @@ Plans:
 - [x] 00.1.1-02-PLAN.md — [humano] Ventana D-18a/D-22 (prod revisor único, sin bypass, Production, ruleset de main), sesión aislada del bot y ADR-009 en Propuesto
 - [x] 00.1.1-03-PLAN.md — Playwright sin secretos: trace/video off, bypass por cookie, login por API con storageState
 - [x] 00.1.1-04-PLAN.md — Compuerta de secretos (zip base64 recursivo) con regresión sobre un reporte real
-- [ ] 00.1.1-05-PLAN.md — Compuerta y subida solo en fallo en CI; URL del run como evidencia; e2e-preview en verde
+- [x] 00.1.1-05-PLAN.md — Compuerta y subida solo en fallo en CI; URL del run como evidencia; e2e-preview en verde
 - [x] 00.1.1-06-PLAN.md — Guardia ampliada (gh api, secret/variable de prod, GraphQL, curl, git push) con prueba de regresión
 - [ ] 00.1.1-07-PLAN.md — fusionar-dev.sh, cierre-fase con fusión del bot, job guardia requerido en dev
 - [x] 00.1.1-08-PLAN.md — deploy-prod con un solo job en prod (acción compuesta de migración) y humo con registro cerrado
