@@ -29,6 +29,12 @@
 - Guardia ampliada (`.claude/hooks/guardia-prod.sh` y `deny`) y su prueba en CI (D-06, D-07).
 - `scripts/fusionar-dev.sh` y su uso desde `cierre-fase.sh` (D-13..D-15).
 - Humo con registro público cerrado en cada despliegue (D-19).
-- Sacar de la máquina del agente las credenciales de `jaras97` (D-02a, paso humano).
+
+## Riesgo aceptado (2026-11-28)
+- Las credenciales de `jaras97` (gh y llavero de git) **siguen en la máquina del agente**: el desarrollador las usa en otros
+  proyectos del mismo usuario de macOS y cerrarlas es global (enmienda D-02a, opción 2). La sesión del agente usa al bot por
+  `.claude/settings.local.json`, pero un proceso del mismo usuario podría leer el token de `jaras97`.
+- Lo mitigan la guardia ampliada (plan 06: bloquea `pending_deployments`, `environments/prod`, fusiones y pushes a `main`) y el
+  revisor obligatorio de prod. Cierre definitivo: correr el agente en un usuario de macOS sin credenciales de `jaras97`.
 
 Las consecuencias definitivas se escriben al aceptar este ADR (plan 09).
