@@ -4,6 +4,7 @@ Estado: [ ] pendiente · [~] en curso · [x] verificada en dev
 
 ## H0 Arranque y descubrimiento (sem 1–3)
 - [ ] 0.1 Arranque técnico: monorepo sobre el repo del sitio (`apps/site`), ramas `dev`/`main`, Claude Code + GSD, Supabase dev y prod, API y apps base, proyectos de Vercel (site, web, driver) con dominios dev y prod, CI/CD, Sentry; el sitio importa `tokens.css`
+- [ ] 0.1.1 Endurecimiento de seguridad (hallazgos de `00.1-SECURITY.md`): reportes de Playwright sin secretos (login por API con `storageState`, bypass sin URL en pasos/trazas), guardia del agente contra `gh api`/`gh secret`/`gh variable` hacia main y prod, el agente aprueba y fusiona lo de `dev` (el desarrollador solo aprueba prod al cerrar cada fase), entorno prod sin bypass de admin ni autoaprobación, evidencia de registro público desactivado en prod. La rotación de secretos queda para el cierre del proyecto (AR-07)
 - [ ] 0.2 Dominio: entrevistas, catálogos, estados (decidir si "En clasificación" es estado o solo evento `CLASIFICADO`), reglas IMILE (plazo, multas, perdidos), equivalencias de repartidores; contraste con `docs/requerimientos/informe-lucg.md`
 - [ ] 0.3 Identidad y prototipos de consola y PWA sobre `tokens.css` (el sitio público se ajusta a la misma identidad); prueba de PWA en Android e iPhone reales sin señal; ADR-3 confirmado
 - [ ] 0.4 Legal y contable: habilitación postal, política de datos, pólizas, modelo de pago a repartidores
@@ -88,6 +89,17 @@ Plans:
 - [ ] 00.1-10-PLAN.md — [humano] Organizaciones de LUCG, transferencia del repo, Supabase, Sentry, Railway, Vercel, DNS y secretos
 - [ ] 00.1-11-PLAN.md — Suite completa, variables, protección de dev, cierre-fase a dev y evidencia en dev
 - [ ] 00.1-12-PLAN.md — [humano] Evidencia Sentry/PWA, protección de main, PR dev→main manual, prod y commit de la evidencia
+
+### Phase 0.1.1: Endurecimiento de seguridad
+**Hito**: H0 Arranque y descubrimiento
+**Goal**: Cerrar las 11 amenazas abiertas de `00.1-SECURITY.md` (C-1 a C-4): reportes de Playwright sin secretos (login por API con `storageState`, bypass sin URL en pasos/trazas), guardia del agente contra `gh api`/`gh secret`/`gh variable` hacia main y prod con prueba de regresión, entorno prod sin bypass de admin ni autoaprobación, evidencia de registro público desactivado en prod, decisión sobre organización de GitHub (D-03). Aprobaciones: el agente fusiona sus PRs a `dev` sin intervención humana (vía script que exige base=`dev` y CI verde; `gh pr merge` crudo sigue bloqueado) y el desarrollador solo aprueba prod, una vez por cierre de fase (una sola aprobación en deploy-prod); requiere ADR que ajuste ADR-008 y CLAUDE.md. La rotación de secretos y el borrado de artefactos quedan para el cierre del proyecto (AR-07)
+**Depends on**: Phase 0.1
+**Requirements**: TBD (el hito H0 no tiene requisitos asignados en este ROADMAP)
+**Success Criteria** (what must be TRUE):
+  1. `/gsd:secure-phase 0.1` termina con `threats_open: 0`.
+  2. Un PR del agente a `dev` llega a fusionarse y desplegarse en dev sin ninguna acción del desarrollador; un intento del agente de fusionar o aprobar hacia `main`/prod sigue bloqueado.
+  3. El cierre de una fase pide al desarrollador una sola aprobación: la de prod.
+**Plans**: TBD
 
 ### Phase 0.2: Dominio
 **Hito**: H0 Arranque y descubrimiento
