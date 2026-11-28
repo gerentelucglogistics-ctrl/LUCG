@@ -62,6 +62,23 @@ jobs:
         run: git diff --exit-code packages/api-client/src/schema.ts
       - run: pnpm lint && pnpm typecheck && pnpm test && pnpm build
 
+  guardia:
+    # Check requerido de dev (D-07): pruebas de la guardia, la compuerta, fusionar-dev, registro cerrado y artefactos. Sin secretos.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Pruebas de scripts
+        run: |
+          bash scripts/tests/guardia.test.sh
+          COMPUERTA_REQUIERE_REAL=1 bash scripts/tests/compuerta.test.sh
+          bash scripts/tests/fusionar-dev.test.sh
+          bash scripts/tests/registro-cerrado.test.sh
+          bash scripts/tests/artefactos.test.sh
+
   e2e-preview:
     # Check exigido por fusionar-dev.sh (D-14); no es requerido por la protección de dev.
     # Los forks no reciben secretos: el job solo corre si el head es de este repo.

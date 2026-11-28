@@ -42,7 +42,9 @@ production_ausente() {
 
 bot_write_sin_admin() { api_jq "collaborators/$LUCG_BOT/permission" '.permission == "write" and .user.permissions.admin == false'; }
 bot_no_revisor() { api_jq environments/prod '[.protection_rules[]? | .reviewers[]?.reviewer.login] | index($bot) == null' --arg bot "$LUCG_BOT"; }
-dev_checks() { api_jq branches/dev '(.protection.required_status_checks.contexts // []) as $c | ($c | index("api")) != null and ($c | index("web")) != null'; }
+dev_checks() { api_jq branches/dev '(.protection.required_status_checks.contexts // []) as $c | ($c | index("api")) != null and ($c | index("web")) != null and ($c | index("guardia")) != null'; }
+# Sin valor por defecto: un strict ausente debe fallar. Solo con token admin (el resumen sin admin no trae strict).
+dev_sin_strict() { gh api "repos/$R/branches/dev/protection/required_status_checks" | jq -e '.strict == false'; }
 
 main_ruleset() {
   local id
@@ -67,7 +69,12 @@ comprobar "prod: solo despliega desde main" prod_solo_main
 comprobar "Production: ausente o sin revisores (D-16)" production_ausente
 comprobar "bot: colaborador write sin admin (D-01, D-02)" bot_write_sin_admin
 comprobar "bot: no es revisor de prod (D-02)" bot_no_revisor
-comprobar "dev: checks requeridos api y web" dev_checks
+comprobar "dev: checks requeridos api, web y guardia (D-07)" dev_checks
+if [ "${LUCG_AUDITAR_ADMIN:-}" = 1 ]; then
+  comprobar "dev: sin strict (D-17 enmendada)" dev_sin_strict
+else
+  echo "OMITIDA dev: sin strict (sin token admin)"
+fi
 comprobar "main: ruleset activo con Restrict updates (D-22)" main_ruleset
 comprobar "deploy-prod: un solo job con environment: prod (criterio 3)" deploy_prod_un_job
 
