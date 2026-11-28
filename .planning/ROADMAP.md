@@ -124,7 +124,7 @@ Plans:
 
 Plans:
 
-- [ ] 00.1.1-01-PLAN.md — [humano] Cuenta del bot y token classic; invitación write sin admin; scripts/auditar-github.sh
+- [x] 00.1.1-01-PLAN.md — [humano] Cuenta del bot y token classic; invitación write sin admin; scripts/auditar-github.sh
 - [ ] 00.1.1-02-PLAN.md — [humano] Ventana D-18a/D-22 (prod revisor único, sin bypass, Production, ruleset de main), sesión aislada del bot y ADR-009 en Propuesto
 - [x] 00.1.1-03-PLAN.md — Playwright sin secretos: trace/video off, bypass por cookie, login por API con storageState
 - [x] 00.1.1-04-PLAN.md — Compuerta de secretos (zip base64 recursivo) con regresión sobre un reporte real
