@@ -115,6 +115,7 @@ caso 0 'gh api graphql -f query='\''query { viewer { login } }'\'''
 caso 0 'gh api -X PUT repos/o/r/branches/dev/protection --input p.json'
 caso 0 'gh api -X PATCH repos/o/r/branches/dev/protection/required_status_checks --input c.json'
 caso 0 'gh api -X POST repos/o/r/branches/dev/protection/required_status_checks/contexts --input c.json'
+caso 2 'gh api graphql -f query='\''mutation { dismissPullRequestReview(input:{}) { clientMutationId } }'\'''
 # Secretos y variables permitidos
 caso 0 'gh secret set X --env dev'
 caso 0 'gh variable set X --body y'
