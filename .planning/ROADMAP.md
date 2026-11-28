@@ -99,7 +99,21 @@ Plans:
   1. `/gsd:secure-phase 0.1` termina con `threats_open: 0`.
   2. Un PR del agente a `dev` llega a fusionarse y desplegarse en dev sin ninguna acción del desarrollador; un intento del agente de fusionar o aprobar hacia `main`/prod sigue bloqueado.
   3. El cierre de una fase pide al desarrollador una sola aprobación: la de prod.
-**Plans**: TBD
+**Plans**: 12 plans
+
+Plans:
+- [ ] 00.1.1-01-PLAN.md — [humano] Cuenta del bot y token classic; invitación write sin admin; scripts/auditar-github.sh
+- [ ] 00.1.1-02-PLAN.md — [humano] Ventana D-18a/D-22 (prod revisor único, sin bypass, Production, ruleset de main), sesión aislada del bot y ADR-009 en Propuesto
+- [ ] 00.1.1-03-PLAN.md — Playwright sin secretos: trace/video off, bypass por cookie, login por API con storageState
+- [ ] 00.1.1-04-PLAN.md — Compuerta de secretos (zip base64 recursivo) con regresión sobre un reporte real
+- [ ] 00.1.1-05-PLAN.md — Compuerta y subida solo en fallo en CI; URL del run como evidencia; e2e-preview en verde
+- [ ] 00.1.1-06-PLAN.md — Guardia ampliada (gh api, secret/variable de prod, GraphQL, curl, git push) con prueba de regresión
+- [ ] 00.1.1-07-PLAN.md — fusionar-dev.sh, cierre-fase con fusión del bot, job guardia requerido en dev
+- [ ] 00.1.1-08-PLAN.md — deploy-prod con un solo job en prod (acción compuesta de migración) y humo con registro cerrado
+- [ ] 00.1.1-09-PLAN.md — ADR-009, CLAUDE.md, memoria; 00.1-SECURITY.md con C-1/C-2/C-4 cerradas, AR-08 y R1-R6
+- [ ] 00.1.1-10-PLAN.md — [humano] Cierre a dev por el bot con evidencia; el desarrollador fusiona dev→main
+- [ ] 00.1.1-11-PLAN.md — [humano] Bot sin poder de aprobar, aprobación única de prod, evidencia de C-3
+- [ ] 00.1.1-12-PLAN.md — [sesión principal] /gsd:secure-phase 0.1 → threats_open: 0; PR de evidencia fusionado por el bot
 
 ### Phase 0.2: Dominio
 **Hito**: H0 Arranque y descubrimiento
